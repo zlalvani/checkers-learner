@@ -1,6 +1,6 @@
 import numpy as np
 
-class Board:
+class Board(object):
 	'''A class to represent board states, built around 2D numpy.array'''
 	grid = np.array([])
 	def __init__(self, board = None):
@@ -27,7 +27,7 @@ class Board:
 			for col in range(8):
 				if np.sign(self.grid[row][col]) == color:
 					result = __getPieceJumps(row, col)
-					if result:
+					if len(result):
 						jumps_list += result
 		pass
 	def __getPieceJumps(self, color, row, col):
@@ -59,14 +59,14 @@ class Board:
 		 2 - red king
 		'''
 		self.grid = np.array([
-							np.array([ 0,-1, 0,-1, 0,-1, 0,-1]),
-							np.array([-1, 0,-1, 0,-1, 0,-1, 0]),
-							np.array([ 0,-1, 0,-1, 0,-1, 0,-1]),
-							np.array([ 0, 0, 0, 0, 0, 0, 0, 0]),
-							np.array([ 0, 0, 0, 0, 0, 0, 0, 0]),
-							np.array([ 1, 0, 1, 0, 1, 0, 1, 0]),
-							np.array([ 0, 1, 0, 1, 0, 1, 0, 1]),
-							np.array([ 1, 0, 1, 0, 1, 0, 1, 0]),
+							[ 0,-1, 0,-1, 0,-1, 0,-1],
+							[-1, 0,-1, 0,-1, 0,-1, 0],
+							[ 0,-1, 0,-1, 0,-1, 0,-1],
+							[ 0, 0, 0, 0, 0, 0, 0, 0],
+							[ 0, 0, 0, 0, 0, 0, 0, 0],
+							[ 1, 0, 1, 0, 1, 0, 1, 0],
+							[ 0, 1, 0, 1, 0, 1, 0, 1],
+							[ 1, 0, 1, 0, 1, 0, 1, 0],
 							])
 
 
