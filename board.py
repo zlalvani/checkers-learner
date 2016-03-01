@@ -1,8 +1,8 @@
 import numpy as np
+from globalconst import RED, BLACK, FORWARD_LEFT, FORWARD_RIGHT, BACKWARD_LEFT, BACKWARD_RIGHT
 
 class Board(object):
 	'''A class to represent board states, built around 2D numpy.array'''
-	grid = np.array([])
 	def __init__(self, board = None):
 		if board: 
 			self.grid = board.grid
@@ -10,7 +10,7 @@ class Board(object):
 			self.__newBoard()
 
 
-	def verifyMove():
+	def verifyMove(self, next_board):
 		pass
 
 
@@ -29,7 +29,8 @@ class Board(object):
 					result = __getPieceJumps(row, col)
 					if len(result):
 						jumps_list += result
-		pass
+		return jumps_list
+
 	def __getPieceJumps(self, color, row, col):
 
 		king = (abs(self.grid[row][col]) == 2)
@@ -47,7 +48,25 @@ class Board(object):
 
 		pass
 
+	def __checkDirection(self, color, row, col, direction, multiple = 1):
+		dir_dic = { FORWARD_LEFT : (row - (color*multiple), col - (color*multiple)),
+					FORWARD_RIGHT : (row + (color*multiple), col - (color*multiple)),
+					BACKWARD_LEFT : (row - (color*multiple), col + (color*multiple)),
+					BACKWARD_RIGHT : (row + (color*multiple), col + (color*multiple))
+					}
+
+		check_row = dir_dic[direction][0]
+		check_col = dir_dic[direction][1]
+
+		if check_row < 0 or check_col < 0:
+			return False, None
+		else:
+			return True, self.grid[check_row][check_col]
+
 	def __checkForMoves(self, color):
+		pass
+
+	def __getPieceMoves(self, color):
 		pass
 
 	def __newBoard(self):
