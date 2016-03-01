@@ -70,5 +70,5 @@ class Board(object):
 							])
 
 
-
+#Threshold nearest neighbor distance to choose between it and minimax
 #Note: eventually use pickle to store in mongo
