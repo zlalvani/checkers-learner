@@ -1,4 +1,4 @@
-import game
+import board
 
 def main():
 	pass

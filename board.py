@@ -3,33 +3,32 @@ from globalconst import RED, BLACK, FORWARD_LEFT, FORWARD_RIGHT, BACKWARD_LEFT, 
 
 class Board(object):
 	'''A class to represent board states, built around 2D numpy.array'''
+	self.moves = {RED : [], BLACK : []}
 	def __init__(self, board = None):
 		if board: 
 			self.grid = board.grid
 		else:
 			self.__newBoard()
-
+			
 
 	def verifyMove(self, next_board):
 		pass
 
 
 	def getMoveList(self, color):
-		jumps_list = __checkForJumps(color)
-		if len(jumps_list):
-			return jumps_list
-		else:
-			return __checkForMoves(color)
+		move_list = __checkForMoves(color)
+		self.moves[color] = move_list
+		return move_list
 
-	def __checkForJumps(self, color):
+	def __checkForMoves(self, color):
 		jumps_list = []
+		moves_list = []
 		for row in range(8):
 			for col in range(8):
 				if np.sign(self.grid[row][col]) == color:
-					result = __getPieceJumps(row, col)
-					if len(result):
-						jumps_list += result
-		return jumps_list
+					jumps_list += __getPieceJumps(color, row, col)
+					moves_list += __getPieceMoves(color, row, col)
+		return (jumps_list if len(jumps_list) else moves_list)
 
 	def __getPieceJumps(self, color, row, col):
 
@@ -52,21 +51,36 @@ class Board(object):
 		dir_dic = { FORWARD_LEFT : (row - (color*multiple), col - (color*multiple)),
 					FORWARD_RIGHT : (row + (color*multiple), col - (color*multiple)),
 					BACKWARD_LEFT : (row - (color*multiple), col + (color*multiple)),
-					BACKWARD_RIGHT : (row + (color*multiple), col + (color*multiple))
+					BACKWARD_RIGHT : (row + (color*multiple), col + (color*multiple)),
+					0 : (-1, -1)
 					}
 
 		check_row = dir_dic[direction][0]
 		check_col = dir_dic[direction][1]
 
 		if check_row < 0 or check_col < 0:
-			return False, None
+			return None
 		else:
-			return True, self.grid[check_row][check_col]
+			return self.grid[check_row][check_col], check_row, check_col
 
-	def __checkForMoves(self, color):
-		pass
+	def __getPieceMoves(self, color, row, col):
+		king = (abs(self.grid[row][col]) == 2)`
 
-	def __getPieceMoves(self, color):
+		dirs = [FORWARD_LEFT, FORWARD_RIGHT, int(king) * BACKWARD_LEFT, int(king) * BACKWARD_RIGHT]
+
+		piece_moves = []
+
+		for direction in dirs:
+			result = self.__checkDirection(color, row, direction)
+			if result is not None: 
+				if result[0] == 0:
+					move_board = Board(self) #maybe problem
+					val = move_board.grid[row][col]
+					move_board.grid[row][col] = 0
+					move_board.grid[result[1]][result[2]] = val
+					piece_moves.append(move_board)
+
+
 		pass
 
 	def __newBoard(self):
