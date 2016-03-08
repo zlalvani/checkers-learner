@@ -1,4 +1,5 @@
 import board
+from globalconsts import RED, BLACK
 
 def main():
 	pass
