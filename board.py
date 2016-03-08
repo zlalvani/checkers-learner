@@ -1,5 +1,5 @@
 import numpy as np
-from globalconst import RED, BLACK, FORWARD_LEFT, FORWARD_RIGHT, BACKWARD_LEFT, BACKWARD_RIGHT
+from globalconsts import RED, BLACK, FORWARD_LEFT, FORWARD_RIGHT, BACKWARD_LEFT, BACKWARD_RIGHT
 
 class Board(object):
 	'''A class to represent board states, built around 2D numpy.array'''
