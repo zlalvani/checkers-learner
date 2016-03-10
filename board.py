@@ -20,6 +20,9 @@ class Board(object):
 		self.moves[color] = move_list
 		return move_list
 
+	def printBoard(self):
+		pass
+
 	def __checkForMoves(self, color):
 		jumps_list = []
 		moves_list = []
@@ -30,17 +33,16 @@ class Board(object):
 					moves_list += __getPieceMoves(color, row, col)
 		return (jumps_list if len(jumps_list) else moves_list)
 
-	def __getPieceJumps(self, color, row, col):
+	def __getPieceJumps(self, color, row, col, piece_jumps = []):
 
 		king = (abs(self.grid[row][col]) == 2)
 
-		piece_jumps = []
-
+		'''
 		next_row = row - (color if (row - color >= 0 and row - color < 8) else 0)
 		next_col = col + (1 if row + 1 < 8 else 0)
 		if self.grid[next_row][next_col] == -color:
 			pass
-
+		'''
 		return piece_jumps
 
 		#recursively check for jumps to make a chain
@@ -64,7 +66,7 @@ class Board(object):
 			return self.grid[check_row][check_col], check_row, check_col
 
 	def __getPieceMoves(self, color, row, col):
-		king = (abs(self.grid[row][col]) == 2)`
+		king = (abs(self.grid[row][col]) == 2)
 
 		dirs = [FORWARD_LEFT, FORWARD_RIGHT, int(king) * BACKWARD_LEFT, int(king) * BACKWARD_RIGHT]
 
