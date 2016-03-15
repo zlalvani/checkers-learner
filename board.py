@@ -3,7 +3,7 @@ from globalconsts import RED, BLACK, FORWARD_LEFT, FORWARD_RIGHT, BACKWARD_LEFT,
 
 class Board(object):
 	'''A class to represent board states, built around 2D numpy.array'''
-	self.moves = {RED : [], BLACK : []}
+	moves = {RED : [], BLACK : []}
 	def __init__(self, board = None):
 		if board: 
 			self.grid = board.grid
@@ -35,7 +35,7 @@ class Board(object):
 
 	def __getPieceJumps(self, color, row, col, piece_jumps = []):
 
-		king = (abs(self.grid[row][col]) == 2)
+		king = (self.grid[row][col] == RKING or self.grid[row][col] == BKING)
 
 		'''
 		next_row = row - (color if (row - color >= 0 and row - color < 8) else 0)
@@ -50,15 +50,35 @@ class Board(object):
 		pass
 
 	def __checkDirection(self, color, row, col, direction, multiple = 1):
+		def __fwdLeft():
+			return (row - (color*multiple), col - (color*multiple)) if row % 2 == 0 \
+				else (row - (color*multiple), col)
+		def __fwdRight():
+			return (row + (color*multiple), col) if row % 2 == 0 \
+				else (row + (color*multiple), col - (color*multiple))
+		def __bwdLeft():
+			return (row - (color*multiple), col + (color*multiple)) if row % 2 == 0 \
+				else (row - (color*multiple), col)
+		def __bwdRight():
+			return (row + (color*multiple), col) if row % 2 == 0 \
+				else (row + (color*multiple), col + (color*multiple))
+
+		dir_dic = { FORWARD_LEFT : __fwdLeft,
+					FORWARD_RIGHT : __fwdRight,
+					BACKWARD_LEFT : __bwdLeft,
+					BACKWARD_RIGHT : __bwdRight
+					}
+		'''
 		dir_dic = { FORWARD_LEFT : (row - (color*multiple), col - (color*multiple)),
 					FORWARD_RIGHT : (row + (color*multiple), col - (color*multiple)),
 					BACKWARD_LEFT : (row - (color*multiple), col + (color*multiple)),
 					BACKWARD_RIGHT : (row + (color*multiple), col + (color*multiple)),
 					0 : (-1, -1)
 					}
-
-		check_row = dir_dic[direction][0]
-		check_col = dir_dic[direction][1]
+		'''
+		result = dir_dic[direction]()
+		check_row = result[0]
+		check_col = result[1]
 
 		if check_row < 0 or check_col < 0:
 			return None
@@ -66,16 +86,17 @@ class Board(object):
 			return self.grid[check_row][check_col], check_row, check_col
 
 	def __getPieceMoves(self, color, row, col):
-		king = (abs(self.grid[row][col]) == 2)
+		king = (self.grid[row][col] == RKING or self.grid[row][col] == BKING)
 
 		dirs = [FORWARD_LEFT, FORWARD_RIGHT, int(king) * BACKWARD_LEFT, int(king) * BACKWARD_RIGHT]
+		dirs = [d for d in dirs if d != 0]
 
 		piece_moves = []
 
 		for direction in dirs:
 			result = self.__checkDirection(color, row, direction)
 			if result is not None: 
-				if result[0] == 0:
+				if result[0] == EMPTY:
 					move_board = Board(self) #maybe problem
 					val = move_board.grid[row][col]
 					move_board.grid[row][col] = 0
@@ -94,6 +115,17 @@ class Board(object):
 		 2 - red king
 		'''
 		self.grid = np.array([
+							[BLACK, BLACK, BLACK, BLACK],
+							[BLACK, BLACK, BLACK, BLACK],
+							[BLACK, BLACK, BLACK, BLACK],
+							[EMPTY, EMPTY, EMPTY, EMPTY],
+							[EMPTY, EMPTY, EMPTY, EMPTY],
+							[RED,   RED,   RED,   RED],
+							[RED,   RED,   RED,   RED],
+							[RED,   RED,   RED,   RED]
+							])
+		'''
+		self.grid = np.array([
 							[ 0,-1, 0,-1, 0,-1, 0,-1],
 							[-1, 0,-1, 0,-1, 0,-1, 0],
 							[ 0,-1, 0,-1, 0,-1, 0,-1],
@@ -103,6 +135,7 @@ class Board(object):
 							[ 0, 1, 0, 1, 0, 1, 0, 1],
 							[ 1, 0, 1, 0, 1, 0, 1, 0],
 							])
+		'''
 
 
 #Threshold nearest neighbor distance to choose between it and minimax
