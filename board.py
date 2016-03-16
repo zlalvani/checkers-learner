@@ -33,9 +33,15 @@ class Board(object):
 					moves_list += __getPieceMoves(color, row, col)
 		return (jumps_list if len(jumps_list) else moves_list)
 
-	def __getPieceJumps(self, color, row, col, piece_jumps = []):
+	def __getPieceJumps(self, color, row, col, piece_jumps = [], jump_tree = []):
 
 		king = (self.grid[row][col] == RKING or self.grid[row][col] == BKING)
+
+		jump_tree = jump_tree[:]
+		dirs = [FORWARD_LEFT, FORWARD_RIGHT, int(king) * BACKWARD_LEFT, int(king) * BACKWARD_RIGHT]
+		dirs = [d for d in dirs if d != 0]
+		for d in dirs:
+			continue
 
 		'''
 		next_row = row - (color if (row - color >= 0 and row - color < 8) else 0)
@@ -93,8 +99,8 @@ class Board(object):
 
 		piece_moves = []
 
-		for direction in dirs:
-			result = self.__checkDirection(color, row, direction)
+		for d in dirs:
+			result = self.__checkDirection(color, row, d)
 			if result is not None: 
 				if result[0] == EMPTY:
 					move_board = Board(self) #maybe problem
