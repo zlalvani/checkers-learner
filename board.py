@@ -5,7 +5,7 @@ class Board(object):
 	'''A class to represent board states, built around 2D numpy.array'''
 	moves = {RED : [], BLACK : []}
 	def __init__(self, board = None):
-		if board: 
+		if board is not None: 
 			self.grid = board.grid
 		else:
 			self.__newBoard()
@@ -37,10 +37,21 @@ class Board(object):
 
 		king = (self.grid[row][col] == RKING or self.grid[row][col] == BKING)
 
-		jump_tree = jump_tree[:]
 		dirs = [FORWARD_LEFT, FORWARD_RIGHT, int(king) * BACKWARD_LEFT, int(king) * BACKWARD_RIGHT]
 		dirs = [d for d in dirs if d != 0]
 		for d in dirs:
+			jump_tree = jump_tree[:]
+			res1 = __checkDirection(color, row, col, d, 1)
+			res2 = __checkDirection(color, row, col, d, 2)
+			if res1 is not None and res2 is not None \
+			and res1[0] is -color \
+			and res2[0] is EMPTY:
+				move = Board(self)
+				move.grid[res1[1]][res1[2]] = EMPTY
+				move.grid[res2[1]][res2[2]] = color
+				jump_tree.add(move)
+				
+
 			continue
 
 		'''
@@ -56,6 +67,7 @@ class Board(object):
 		pass
 
 	def __checkDirection(self, color, row, col, direction, multiple = 1):
+		#these have bugs
 		def __fwdLeft():
 			return (row - (color*multiple), col - (color*multiple)) if row % 2 == 0 \
 				else (row - (color*multiple), col)
@@ -69,11 +81,12 @@ class Board(object):
 			return (row + (color*multiple), col) if row % 2 == 0 \
 				else (row + (color*multiple), col + (color*multiple))
 
-		dir_dic = { FORWARD_LEFT : __fwdLeft,
-					FORWARD_RIGHT : __fwdRight,
-					BACKWARD_LEFT : __bwdLeft,
-					BACKWARD_RIGHT : __bwdRight
-					}
+		dir_dic = { 
+			FORWARD_LEFT : __fwdLeft,
+			FORWARD_RIGHT : __fwdRight,
+			BACKWARD_LEFT : __bwdLeft,
+			BACKWARD_RIGHT : __bwdRight
+		}
 		'''
 		dir_dic = { FORWARD_LEFT : (row - (color*multiple), col - (color*multiple)),
 					FORWARD_RIGHT : (row + (color*multiple), col - (color*multiple)),
@@ -121,15 +134,15 @@ class Board(object):
 		 2 - red king
 		'''
 		self.grid = np.array([
-							[BLACK, BLACK, BLACK, BLACK],
-							[BLACK, BLACK, BLACK, BLACK],
-							[BLACK, BLACK, BLACK, BLACK],
-							[EMPTY, EMPTY, EMPTY, EMPTY],
-							[EMPTY, EMPTY, EMPTY, EMPTY],
-							[RED,   RED,   RED,   RED],
-							[RED,   RED,   RED,   RED],
-							[RED,   RED,   RED,   RED]
-							])
+			[BLACK, BLACK, BLACK, BLACK],
+			[BLACK, BLACK, BLACK, BLACK],
+			[BLACK, BLACK, BLACK, BLACK],
+			[EMPTY, EMPTY, EMPTY, EMPTY],
+			[EMPTY, EMPTY, EMPTY, EMPTY],
+			[RED,   RED,   RED,   RED],
+			[RED,   RED,   RED,   RED],
+			[RED,   RED,   RED,   RED]
+		])
 		'''
 		self.grid = np.array([
 							[ 0,-1, 0,-1, 0,-1, 0,-1],
