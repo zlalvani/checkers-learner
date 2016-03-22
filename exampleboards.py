@@ -1,4 +1,4 @@
-from globalconsts import RED, BLACK, RKING, BKING
+from globalconsts import EMPTY, RED, BLACK, RKING, BKING
 
 #Example boards for testing
 

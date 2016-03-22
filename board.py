@@ -50,7 +50,6 @@ class Board(object):
 
 		hline = '.' * 19
 		print hline
-		#__grid = self.__grid.tolist()
 		grid = self.__grid
 		for row in grid:
 			line = '. '
@@ -68,8 +67,6 @@ class Board(object):
 				if np.sign(self.__grid[row][col]) == color:
 					jumps_list += self.__getPieceJumps(color, row, col)
 					moves_list += self.__getPieceMoves(color, row, col)
-		#print "# of moves:", len(moves_list)
-		#print "# of jumps:", len(jumps_list)
 		return (jumps_list if len(jumps_list) else moves_list)
 
 	def __getPieceJumps(self, color, row, col, piece_jumps = [], depth_flag = False):#, jump_tree = []):
@@ -95,34 +92,10 @@ class Board(object):
 				move.__getPieceJumps(color, res2[1], res2[2], piece_jumps, depth_flag = True)
 		if not move_flag and depth_flag:
 			piece_jumps.append(Board(self))
-		
-
-		'''
-		next_row = row - (color if (row - color >= 0 and row - color < 8) else 0)
-		next_col = col + (1 if row + 1 < 8 else 0)
-		if self.__grid[next_row][next_col] == -color:
-			pass
-		'''
 		return piece_jumps
 
-		#recursively check for jumps to make a chain
-
 	def __checkDirection(self, color, row, col, direction, multiple = 1):
-		#these have bugs
-		'''
-		def __fwdLeft():
-			return (row - (color*multiple), col - (color*multiple)) if row % 2 == 0 \
-				else (row - (color*multiple), col)
-		def __fwdRight():
-			return (row + (color*multiple), col) if row % 2 == 0 \
-				else (row + (color*multiple), col - (color*multiple))
-		def __bwdLeft():
-			return (row - (color*multiple), col + (color*multiple)) if row % 2 == 0 \
-				else (row - (color*multiple), col)
-		def __bwdRight():
-			return (row + (color*multiple), col) if row % 2 == 0 \
-				else (row + (color*multiple), col + (color*multiple))
-		'''
+
 		def __fwdLeft():
 			return (row - (color*multiple), col - (color*multiple))
 		def __fwdRight():
@@ -138,14 +111,7 @@ class Board(object):
 			BACKWARD_LEFT : __bwdLeft,
 			BACKWARD_RIGHT : __bwdRight
 		}
-		'''
-		dir_dic = { FORWARD_LEFT : (row - (color*multiple), col - (color*multiple)),
-					FORWARD_RIGHT : (row + (color*multiple), col - (color*multiple)),
-					BACKWARD_LEFT : (row - (color*multiple), col + (color*multiple)),
-					BACKWARD_RIGHT : (row + (color*multiple), col + (color*multiple)),
-					0 : (-1, -1)
-					}
-		'''
+
 		result = dir_dic[direction]()
 		check_row = result[0]
 		check_col = result[1]
