@@ -6,16 +6,26 @@ from globalconsts import \
 
 class Board(object):
 	'''A class to represent board states, built around 2D numpy.array'''
-	def __init__(self, board = None, new_grid = None):
-		if board is not None and new_grid is None: 
-			self.__grid = board.getGrid()
+	def __init__(self, board = None, new_grid = None, new_array = None, weight = 1):
 
-			#self.__grid = np.array(board.__grid)
-		if board is None and new_grid is not None:
+		if board is not None:
+			self.__grid = board.getGrid()
+		elif new_grid is not None:
 			self.__grid = cp.deepcopy(new_grid)
+		elif new_array is not None:
+			assert(len(new_array) == 32)
+			self.__grid = self.__newBoard()
+			for i in range(32):
+				if i % 8 < 4:
+					self.__grid[i / 8][2 * (i % 4)] = new_array[i]
+				else:
+					self.__grid[i / 8][2 * (i % 4) + 1] = new_array[i]
 		else:
 			self.__newBoard()
 
+		self.weight = weight #figure out a way to associate a weight with each possible move
+
+		#RED should be AI, black should be opponent
 		self.moves = {RED : [], BLACK : []}
 			
 

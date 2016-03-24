@@ -9,6 +9,7 @@ class Learner(object):
 	chooses moves, and performs learning
 	'''
 	def __init__(self, points = []):
-		pass
+		for state, weights in points:
+			continue
 
 #http://scikit-learn.org/stable/modules/neighbors.html#classification
