@@ -8,7 +8,7 @@ class Learner(object):
 	A class that instantiates the feature space for an individual AI, 
 	chooses moves, and performs learning
 	'''
-	def __init__(self, contents = []):
+	def __init__(self, points = []):
 		pass
 
 #http://scikit-learn.org/stable/modules/neighbors.html#classification

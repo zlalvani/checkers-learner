@@ -23,6 +23,15 @@ class Board(object):
 	def getGrid(self):
 		return cp.deepcopy(self.__grid)
 
+	def getArray(self):
+		array = []
+		for row in range(8):
+			for col in range(8):
+				if row % 2 != col % 2:
+					array.append(self.__grid[row][col])
+
+		return np.array(array)
+
 	def verifyMove(self, color, next_board):
 		if len(self.moves[color]):
 			return (next_board in self.moves[color])
@@ -32,12 +41,11 @@ class Board(object):
 
 
 	def getMoveList(self, color):
-		if not len(self.moves[color]):
-			move_list = self.__checkForMoves(color)
-			self.moves[color] = move_list
+		if len(self.moves[color]):
+			return self.moves[color]
 		else:
-			move_list = self.moves[color]
-		return move_list
+			self.moves[color] = self.__checkForMoves(color)
+			return self.getMoveList(color)
 
 	def printBoard(self):
 		piece_dic = {
