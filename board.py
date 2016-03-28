@@ -23,11 +23,13 @@ class Board(object):
 		else:
 			self.__newBoard()
 
+
+
 		self.weight = weight #figure out a way to associate a weight with each possible move
 
 		#RED should be AI, black should be opponent
-		self.moves = {RED : [], BLACK : []}
-			
+		self.__moves = {RED : [], BLACK : []}
+		self.__pieces = {RED : set([]), BLACK : set([])}
 
 
 	def getGrid(self):
@@ -39,23 +41,30 @@ class Board(object):
 			for col in range(8):
 				if row % 2 != col % 2:
 					array.append(self.__grid[row][col])
-
 		return np.array(array)
 
 	def verifyMove(self, color, next_board):
-		if len(self.moves[color]):
-			return (next_board in self.moves[color])
+		if len(self.__moves[color]):
+			return (next_board in self.__moves[color])
 		else:
 			self.getMoveList(color)
 			return self.verifyMove(color, next_board)
 
 
 	def getMoveList(self, color):
-		if len(self.moves[color]):
-			return self.moves[color]
+		if len(self.__moves[color]):
+			return cp.deepcopy(self.__moves[color])
 		else:
-			self.moves[color] = self.__checkForMoves(color)
+			self.__moves[color] = self.__checkForMoves(color)
 			return self.getMoveList(color)
+
+	def getPieces(self, color):
+		if len(self.__pieces[color]):
+			return cp.deepcopy(self.__pieces[color])
+		else:
+			self.__pieces[color] = self.__storePieceLocations(color)
+			return self.getPieces(color)
+
 
 	def printBoard(self):
 		piece_dic = {
@@ -76,6 +85,17 @@ class Board(object):
 			line += '.'
 			print line
 		print hline
+
+	def getInverse(self):
+		return Board(new_array = np.array([-p for p in self.getArray().tolist()]))
+
+	def __storePieceLocations(self, color):
+		locs = []
+		for row in range(8):
+			for col in range(8):
+				if np.sign(self.__grid[row][col]) == color:
+					locs.append((row, col, self.__grid[row][col]))
+		self.__pieces[color] = set(locs)
 
 	def __checkForMoves(self, color):
 		jumps_list = []
@@ -168,19 +188,7 @@ class Board(object):
 		 1 - red
 		 2 - red king
 		'''
-		#use the following representation for ML:
-		'''
-		self.__grid = np.array([
-			[BLACK, BLACK, BLACK, BLACK],
-			[BLACK, BLACK, BLACK, BLACK],
-			[BLACK, BLACK, BLACK, BLACK],
-			[EMPTY, EMPTY, EMPTY, EMPTY],
-			[EMPTY, EMPTY, EMPTY, EMPTY],
-			[RED,   RED,   RED,   RED],
-			[RED,   RED,   RED,   RED],
-			[RED,   RED,   RED,   RED]
-		])
-		'''
+
 		self.__grid = [
 			[ 0,-1, 0,-1, 0,-1, 0,-1],
 			[-1, 0,-1, 0,-1, 0,-1, 0],
