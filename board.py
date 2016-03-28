@@ -1,43 +1,72 @@
 import numpy as np
 import copy as cp
+from move import Move
 from globalconsts import \
 	EMPTY, RED, BLACK, BKING, RKING, \
 	FORWARD_LEFT, FORWARD_RIGHT, BACKWARD_LEFT, BACKWARD_RIGHT
 
 class Board(object):
 	'''A class to represent board states, built around 2D numpy.array'''
-	def __init__(self, board = None, new_grid = None):
-		if board is not None and new_grid is None: 
-			self.__grid = board.getGrid()
+	def __init__(self, board = None, new_grid = None, new_array = None, weight = 1):
 
-			#self.__grid = np.array(board.__grid)
-		if board is None and new_grid is not None:
+		if board is not None:
+			self.__grid = board.getGrid()
+		elif new_grid is not None:
 			self.__grid = cp.deepcopy(new_grid)
+		elif new_array is not None:
+			assert(len(new_array) == 32)
+			self.__grid = self.__newBoard()
+			for i in range(32):
+				if i % 8 < 4:
+					self.__grid[i / 8][2 * (i % 4)] = new_array[i]
+				else:
+					self.__grid[i / 8][2 * (i % 4) + 1] = new_array[i]
 		else:
 			self.__newBoard()
 
-		self.moves = {RED : [], BLACK : []}
-			
+
+
+		self.weight = weight #figure out a way to associate a weight with each possible move
+
+		#RED should be AI, black should be opponent
+		self.__moves = {RED : [], BLACK : []}
+		self.__pieces = {RED : set([]), BLACK : set([])}
 
 
 	def getGrid(self):
 		return cp.deepcopy(self.__grid)
 
+	def getArray(self):
+		array = []
+		for row in range(8):
+			for col in range(8):
+				if row % 2 != col % 2:
+					array.append(self.__grid[row][col])
+		return np.array(array)
+
 	def verifyMove(self, color, next_board):
-		if len(self.moves[color]):
-			return (next_board in self.moves[color])
+		if len(self.__moves[color]):
+			#the 'in' operator might not work here
+			return (next_board in self.__moves[color])
 		else:
 			self.getMoveList(color)
 			return self.verifyMove(color, next_board)
 
 
 	def getMoveList(self, color):
-		if not len(self.moves[color]):
-			move_list = self.__checkForMoves(color)
-			self.moves[color] = move_list
+		if len(self.__moves[color]):
+			return cp.deepcopy(self.__moves[color])
 		else:
-			move_list = self.moves[color]
-		return move_list
+			self.__moves[color] = self.__checkForMoves(color)
+			return self.getMoveList(color)
+
+	def getPieces(self, color):
+		if len(self.__pieces[color]):
+			return cp.deepcopy(self.__pieces[color])
+		else:
+			self.__pieces[color] = self.__storePieceLocations(color)
+			return self.getPieces(color)
+
 
 	def printBoard(self):
 		piece_dic = {
@@ -58,6 +87,17 @@ class Board(object):
 			line += '.'
 			print line
 		print hline
+
+	def getInverse(self):
+		return Board(new_array = np.array([-p for p in self.getArray().tolist()]))
+
+	def __storePieceLocations(self, color):
+		locs = []
+		for row in range(8):
+			for col in range(8):
+				if np.sign(self.__grid[row][col]) == color:
+					locs.append((row, col, self.__grid[row][col]))
+		self.__pieces[color] = set(locs)
 
 	def __checkForMoves(self, color):
 		jumps_list = []
@@ -150,19 +190,7 @@ class Board(object):
 		 1 - red
 		 2 - red king
 		'''
-		#use the following representation for ML:
-		'''
-		self.__grid = np.array([
-			[BLACK, BLACK, BLACK, BLACK],
-			[BLACK, BLACK, BLACK, BLACK],
-			[BLACK, BLACK, BLACK, BLACK],
-			[EMPTY, EMPTY, EMPTY, EMPTY],
-			[EMPTY, EMPTY, EMPTY, EMPTY],
-			[RED,   RED,   RED,   RED],
-			[RED,   RED,   RED,   RED],
-			[RED,   RED,   RED,   RED]
-		])
-		'''
+
 		self.__grid = [
 			[ 0,-1, 0,-1, 0,-1, 0,-1],
 			[-1, 0,-1, 0,-1, 0,-1, 0],
