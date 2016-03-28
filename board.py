@@ -8,7 +8,6 @@ from globalconsts import \
 class Board(object):
 	'''A class to represent board states, built around 2D numpy.array'''
 	def __init__(self, board = None, new_grid = None, new_array = None, weight = 1):
-
 		if board is not None:
 			self.__grid = board.getGrid()
 		elif new_grid is not None:
@@ -23,8 +22,6 @@ class Board(object):
 					self.__grid[i / 8][2 * (i % 4) + 1] = new_array[i]
 		else:
 			self.__newBoard()
-
-
 
 		self.weight = weight #figure out a way to associate a weight with each possible move
 
@@ -46,12 +43,20 @@ class Board(object):
 
 	def verifyMove(self, color, next_board):
 		if len(self.__moves[color]):
-			#the 'in' operator might not work here
-			return (next_board in self.__moves[color])
+			return any(next_board == bd for bd in self.__moves[color])
 		else:
 			self.getMoveList(color)
 			return self.verifyMove(color, next_board)
 
+	def __eq__(self, other):
+		'''
+			Overload the = operator to compare each element in the board
+		'''
+		for i, row in enumerate(self.__grid):
+			for j, element in enumerate(row):
+				if(element != other.__grid[i][j]):
+					return False
+		return True
 
 	def getMoveList(self, color):
 		if len(self.__moves[color]):
@@ -71,8 +76,8 @@ class Board(object):
 	def printBoard(self):
 		piece_dic = {
 			RED : 'r',
-			BLACK : 'b', 
-			RKING : 'R', 
+			BLACK : 'b',
+			RKING : 'R',
 			BKING : 'B',
 			EMPTY : '-'
 		}
@@ -145,7 +150,7 @@ class Board(object):
 		def __bwdRight():
 			return (row + (color*multiple), col + (color*multiple))
 
-		dir_dic = { 
+		dir_dic = {
 			FORWARD_LEFT : __fwdLeft,
 			FORWARD_RIGHT : __fwdRight,
 			BACKWARD_LEFT : __bwdLeft,
@@ -171,7 +176,7 @@ class Board(object):
 
 		for d in dirs:
 			result = self.__checkDirection(color, row, col, d)
-			if result is not None and result[0] is EMPTY: 
+			if result is not None and result[0] is EMPTY:
 				move_board = Board(self) #maybe problem
 				val = move_board.__grid[row][col]
 				move_board.__grid[row][col] = EMPTY
