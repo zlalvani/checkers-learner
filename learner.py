@@ -21,7 +21,7 @@ class Learner(object):
 
 		assert(self.X.shape == (len(points), 32))
 		#Think about different distance metrics. Manhattan or minkowski?
-		self.tree = BallTree(X, metric='manhattan')
+		self.__tree = BallTree(X, metric='manhattan')
 
 	def getNextMove(self, current_board):
 		pass
@@ -30,6 +30,8 @@ class Learner(object):
 		pass
 
 	def __getNearestNeighbor(self, current_board):
+		dist, ind = self.__tree.query(current_board.getArray(), k=3)
+		
 		pass
 
 	def __featureTransform(self):

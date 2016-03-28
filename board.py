@@ -1,5 +1,6 @@
 import numpy as np
 import copy as cp
+from move import Move
 from globalconsts import \
 	EMPTY, RED, BLACK, BKING, RKING, \
 	FORWARD_LEFT, FORWARD_RIGHT, BACKWARD_LEFT, BACKWARD_RIGHT
@@ -45,6 +46,7 @@ class Board(object):
 
 	def verifyMove(self, color, next_board):
 		if len(self.__moves[color]):
+			#the 'in' operator might not work here
 			return (next_board in self.__moves[color])
 		else:
 			self.getMoveList(color)

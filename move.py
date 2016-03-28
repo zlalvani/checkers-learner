@@ -7,7 +7,15 @@ from globalconsts import \
 
 class Move(object):
 	'''A class to represent a Move, i.e. a chain of piece coordinate updates and Boards'''
-	def __init__(self):
+	def __init__(self, board = None, piece = None, direction = None):
+		self.__move_chain = []
+		self.__piece = piece
+		self.__board = board
+
+		
 		pass
+
+	def update(self, direction):
+
 
 
