@@ -31,7 +31,6 @@ class Learner(object):
 
 	def __getNearestNeighbor(self, current_board):
 		dist, ind = self.__tree.query(current_board.getArray(), k=3)
-		
 		pass
 
 	def __featureTransform(self):

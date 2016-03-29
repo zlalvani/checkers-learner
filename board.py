@@ -29,6 +29,15 @@ class Board(object):
 		self.__moves = {RED : [], BLACK : []}
 		self.__pieces = {RED : set([]), BLACK : set([])}
 
+	def __eq__(self, other):
+		'''
+			Overload the = operator to compare each element in the board
+		'''
+		for i, row in enumerate(self.__grid):
+			for j, element in enumerate(row):
+				if(element != other.__grid[i][j]):
+					return False
+		return True
 
 	def getGrid(self):
 		return cp.deepcopy(self.__grid)
@@ -48,16 +57,6 @@ class Board(object):
 			self.getMoveList(color)
 			return self.verifyMove(color, next_board)
 
-	def __eq__(self, other):
-		'''
-			Overload the = operator to compare each element in the board
-		'''
-		for i, row in enumerate(self.__grid):
-			for j, element in enumerate(row):
-				if(element != other.__grid[i][j]):
-					return False
-		return True
-
 	def getMoveList(self, color):
 		if len(self.__moves[color]):
 			return cp.deepcopy(self.__moves[color])
@@ -66,12 +65,15 @@ class Board(object):
 			return self.getMoveList(color)
 
 	def getPieces(self, color):
+		#look into named tuples for pieces
 		if len(self.__pieces[color]):
 			return cp.deepcopy(self.__pieces[color])
 		else:
 			self.__pieces[color] = self.__storePieceLocations(color)
 			return self.getPieces(color)
 
+	def getInverse(self):
+		return Board(new_array = np.array([-p for p in self.getArray().tolist()]))
 
 	def printBoard(self):
 		piece_dic = {
@@ -92,9 +94,6 @@ class Board(object):
 			line += '.'
 			print line
 		print hline
-
-	def getInverse(self):
-		return Board(new_array = np.array([-p for p in self.getArray().tolist()]))
 
 	def __storePieceLocations(self, color):
 		locs = []
