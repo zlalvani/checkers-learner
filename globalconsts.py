@@ -4,6 +4,7 @@ BLACK = -1
 EMPTY = 0
 RED = 1
 RKING = 2
+AI_COLOR = RED
 
 #directions
 FORWARD_LEFT = 1

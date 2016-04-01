@@ -5,6 +5,8 @@ from globalconsts import \
 	EMPTY, RED, BLACK, BKING, RKING, \
 	FORWARD_LEFT, FORWARD_RIGHT, BACKWARD_LEFT, BACKWARD_RIGHT
 
+#http://www.learnpython.org/en/Multiple_Function_Arguments
+
 class Board(object):
 	'''A class to represent board states, built around 2D numpy.array'''
 	def __init__(self, board = None, new_grid = None, new_array = None, weight = 1):
@@ -50,12 +52,22 @@ class Board(object):
 					array.append(self.__grid[row][col])
 		return np.array(array)
 
-	def verifyMove(self, color, next_board):
-		if len(self.__moves[color]):
-			return any(next_board == bd for bd in self.__moves[color])
+	def verifyMove(self, color, next_board = None, move = None):
+		if next_board is not None:
+			if len(self.__moves[color]):
+				return any(next_board == bd[0] for bd in self.__moves[color])
+			else:
+				self.getMoveList(color)
+				return self.verifyMove(color, next_board = next_board)
+		elif move is not None:
+			if len(self.__moves[color]):
+				return any(next_board == bd[1] for bd in self.__moves[color])
+			else:
+				self.getMoveList(color)
+				return self.verifyMove(color, move = move)
 		else:
-			self.getMoveList(color)
-			return self.verifyMove(color, next_board)
+			return False
+
 
 	def getMoveList(self, color):
 		if len(self.__moves[color]):
@@ -100,7 +112,7 @@ class Board(object):
 		for row in range(8):
 			for col in range(8):
 				if np.sign(self.__grid[row][col]) == color:
-					locs.append((row, col, self.__grid[row][col]))
+					locs.append((row, col, color))
 		self.__pieces[color] = set(locs)
 
 	def __checkForMoves(self, color):
@@ -113,7 +125,7 @@ class Board(object):
 					moves_list += self.__getPieceMoves(color, row, col)
 		return (jumps_list if len(jumps_list) else moves_list)
 
-	def __getPieceJumps(self, color, row, col, piece_jumps = [], depth_flag = False):#, jump_tree = []):
+	def __getPieceJumps(self, color, row, col, piece_jumps = [], depth_flag = False, move = None):#, jump_tree = []):
 
 		king = (self.__grid[row][col] == RKING or self.__grid[row][col] == BKING)
 
@@ -127,15 +139,19 @@ class Board(object):
 			if res1 is not None and res2 is not None \
 			and np.sign(res1[0]) is -color \
 			and res2[0] is EMPTY:
-				move = Board(self)
-				move.__grid[row][col] = EMPTY
-				move.__grid[res1[1]][res1[2]] = EMPTY
-				move.__grid[res2[1]][res2[2]] = color
+				move_board = Board(self)
+				if move is None:
+					new_move = Move((row, col, color), d, multiple = 2)
+				else:
+					move.add(d)
+				move_board.__grid[row][col] = EMPTY
+				move_board.__grid[res1[1]][res1[2]] = EMPTY
+				move_board.__grid[res2[1]][res2[2]] = color
 				#new_tree.add(move)
 				move_flag = True
-				move.__getPieceJumps(color, res2[1], res2[2], piece_jumps, depth_flag = True)
+				move_board.__getPieceJumps(color, res2[1], res2[2], piece_jumps, depth_flag = True, move = new_move)
 		if not move_flag and depth_flag:
-			piece_jumps.append(Board(self))
+			piece_jumps.append(Board(self), move)
 		return piece_jumps
 
 	def __checkDirection(self, color, row, col, direction, multiple = 1):
@@ -180,7 +196,9 @@ class Board(object):
 				val = move_board.__grid[row][col]
 				move_board.__grid[row][col] = EMPTY
 				move_board.__grid[result[1]][result[2]] = val
-				piece_moves.append(move_board)
+				new_move = Move((row, col, color), d, multiple = 1)
+				piece_moves.append((move_board, new_move))
+
 
 				#move_board.printBoard()
 
