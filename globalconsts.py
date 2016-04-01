@@ -11,3 +11,6 @@ FORWARD_LEFT = 1
 FORWARD_RIGHT = 2
 BACKWARD_LEFT = 3
 BACKWARD_RIGHT = 4
+
+#threshold of distance to switch between NN and minimax
+THRESHOLD = 10 

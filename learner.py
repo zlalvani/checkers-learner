@@ -9,7 +9,7 @@ class Learner(object):
 	A class that instantiates the feature space for an individual AI, 
 	chooses moves, and performs learning
 	'''
-	def __init__(self, points = []):
+	def __init__(self, points = [], threshold = THRESHOLD):
 		self.state_list = []
 		self.weights_list = []
 		for state, weights in points:
@@ -17,6 +17,7 @@ class Learner(object):
 			self.state_list.append(state)
 			self.weights_list.append(weights)
 
+		self.threshold = threshold
 		self.__featureTransform()
 
 		assert(self.X.shape == (len(points), 32))
@@ -24,13 +25,17 @@ class Learner(object):
 		self.__tree = BallTree(X, metric='manhattan')
 
 	def getNextMove(self, current_board):
+
+
 		pass
 
 	def __getMinimax(self, current_board):
 		pass
 
-	def __getNearestNeighbor(self, current_board):
-		dist, ind = self.__tree.query(current_board.getArray(), k=3)
+	def __getNearestNeighbors(self, current_board):
+		#dist, ind = self.__tree.query(current_board.getArray(), k=3)
+		ind = self.__tree.query_radius(current_board.getArray(), r = self.threshold)
+
 		pass
 
 	def __featureTransform(self):
