@@ -17,6 +17,10 @@ class Move(object):
 		self.__color = piece[2]
 		self.add(direction)
 
+	def __eq__(self, other):
+		#doesn't handle opposite color but same move case
+		return cmp(self.__chain, other.__chain) == 0 and cmp(self.__piece, other.__piece) == 0
+
 	def add(self, direction):
 		assert(direction in [FORWARD_LEFT, FORWARD_RIGHT, BACKWARD_LEFT, BACKWARD_RIGHT])
 		self.__chain.append(direction)

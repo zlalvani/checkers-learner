@@ -34,9 +34,10 @@ class Learner(object):
 
 	def __getNearestNeighbors(self, current_board):
 		#dist, ind = self.__tree.query(current_board.getArray(), k=3)
-		ind = self.__tree.query_radius(current_board.getArray(), r = self.threshold)
+		ind = self.__tree.query_radius(current_board.getArray(), r = self.threshold).tolist()
 
-		pass
+		for i in ind:
+			continue
 
 	def __featureTransform(self):
 		#replace weights with a Gaussian at some point
