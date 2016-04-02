@@ -2,17 +2,18 @@ import numpy as np
 from sklearn.neighbors import BallTree
 from globalconsts import \
 	EMPTY, RED, BLACK, BKING, RKING, \
-	FORWARD_LEFT, FORWARD_RIGHT, BACKWARD_LEFT, BACKWARD_RIGHT
+	FORWARD_LEFT, FORWARD_RIGHT, BACKWARD_LEFT, BACKWARD_RIGHT, \
+	AI_COLOR, THRESHOLD
 
 class Learner(object):
 	'''
 	A class that instantiates the feature space for an individual AI, 
 	chooses moves, and performs learning
 	'''
-	def __init__(self, points = [], threshold = THRESHOLD):
+	def __init__(self, data_points = [], history = [], threshold = THRESHOLD):
 		self.state_list = []
 		self.weights_list = []
-		for state, weights in points:
+		for state, weights in data_points:
 			assert(len(state) == 32)
 			self.state_list.append(state)
 			self.weights_list.append(weights)
@@ -36,8 +37,11 @@ class Learner(object):
 		#dist, ind = self.__tree.query(current_board.getArray(), k=3)
 		ind = self.__tree.query_radius(current_board.getArray(), r = self.threshold).tolist()
 
+		cur_moves = current_board.getMoveList(AI_COLOR)
+		neighbor_moves = []
 		for i in ind:
-			continue
+			neighbor_moves += Board(new_array = self.state_list[i]).getMoveList(AI_COLOR)
+		neighbor_moves = [move for move in neighbor_moves if move in cur_moves]
 
 	def __featureTransform(self):
 		#replace weights with a Gaussian at some point

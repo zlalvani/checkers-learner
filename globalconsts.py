@@ -5,6 +5,7 @@ EMPTY = 0
 RED = 1
 RKING = 2
 AI_COLOR = RED
+PLAYER_COLOR = BLACK
 
 #directions
 FORWARD_LEFT = 1
