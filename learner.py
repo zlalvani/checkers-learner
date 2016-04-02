@@ -1,3 +1,4 @@
+import random
 import numpy as np
 from sklearn.neighbors import BallTree
 from globalconsts import \
@@ -27,8 +28,11 @@ class Learner(object):
 
 	def getNextMove(self, current_board):
 
-
-		pass
+		nn_move = self.__getNearestNeighbors(current_board)
+		if nn_move is not None:
+			return nn_move
+		else:
+			return __getMinimax(current_board)
 
 	def __getMinimax(self, current_board):
 		pass
@@ -38,10 +42,26 @@ class Learner(object):
 		ind = self.__tree.query_radius(current_board.getArray(), r = self.threshold).tolist()
 
 		cur_moves = current_board.getMoveList(AI_COLOR)
-		neighbor_moves = []
+		possible_moves = []
+		weights = []
 		for i in ind:
-			neighbor_moves += Board(new_array = self.state_list[i]).getMoveList(AI_COLOR)
-		neighbor_moves = [move for move in neighbor_moves if move in cur_moves]
+			_board = Board(new_array = self.state_list[i])
+			for board, move in _board.getMoveList(AI_COLOR):
+				if current_board.verifyMove(move = move):
+					pass
+			'''
+			if current_board.verifyMove(next_board = _board):
+				next_moves = _board.getMoveList(AI_COLOR)
+				assert(len(next_moves) == len(weights_list[i]))
+				neighbor_moves += _board.getMoveList(AI_COLOR)
+				weights += self.weights_list[i]
+			'''
+		if len(possible_moves) == 0:
+			return None
+		else:
+			return random.choice(possible_moves)
+		#neighbor_moves = [move for move in neighbor_moves if move in cur_moves]
+		
 
 	def __featureTransform(self):
 		#replace weights with a Gaussian at some point
