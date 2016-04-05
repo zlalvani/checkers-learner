@@ -1,40 +1,71 @@
+<<<<<<< HEAD
 bimport numpy as np
+=======
+import random
+import numpy as np
+>>>>>>> 1de665a88dc3525e3750c1ca392eb15ac3b69586
 from sklearn.neighbors import BallTree
 from globalconsts import \
 	EMPTY, RED, BLACK, BKING, RKING, \
-	FORWARD_LEFT, FORWARD_RIGHT, BACKWARD_LEFT, BACKWARD_RIGHT
+	FORWARD_LEFT, FORWARD_RIGHT, BACKWARD_LEFT, BACKWARD_RIGHT, \
+	AI_COLOR, THRESHOLD
 
 class Learner(object):
 	'''
 	A class that instantiates the feature space for an individual AI,
 	chooses moves, and performs learning
 	'''
-	def __init__(self, points = []):
+	def __init__(self, data_points = [], history = [], threshold = THRESHOLD):
 		self.state_list = []
 		self.weights_list = []
-		for state, weights in points:
+		for state, weights in data_points:
 			assert(len(state) == 32)
 			self.state_list.append(state)
 			self.weights_list.append(weights)
 
-		self.__featureTransform()
+		self.threshold = threshold
+		#self.__featureTransform()
+		self.X = np.array(self.state_list)
 
 		assert(self.X.shape == (len(points), 32))
 		#Think about different distance metrics. Manhattan or minkowski?
 		self.__tree = BallTree(X, metric='manhattan')
 
 	def getNextMove(self, current_board):
-		pass
+
+		nn_move = self.__getNearestNeighbors(current_board)
+		if nn_move is not None:
+			return nn_move
+		else:
+			return __getMinimax(current_board)
 
 	def __getMinimax(self, current_board):
 		minMax2(current_board, 2):
 
 		pass
 
-	def __getNearestNeighbor(self, current_board):
-		dist, ind = self.__tree.query(current_board.getArray(), k=3)
 
-		pass
+	def __getNearestNeighbors(self, current_board):
+		#dist, ind = self.__tree.query(current_board.getArray(), k=3)
+		ind = self.__tree.query_radius(current_board.getArray(), r = self.threshold).tolist()
+
+		#cur_moves = current_board.getMoveList(AI_COLOR)
+		moves = []
+		weights = []
+		for i in ind:
+			_board = Board(new_array = self.state_list[i])
+			assert(len(_board.getMoveList(AI_COLOR)) == len(self.weights_list[i]))
+			for j, (board, move) in enumerate(_board.getMoveList(AI_COLOR)):
+				if current_board.verifyMove(move = move):
+					moves += move
+					weights += self.weights_list[i][j]
+		if len(moves) == 0:
+			return None
+		else:
+			assert(len(moves) == len(weights))
+			return np.random.choice(moves, 1, weights)
+		#neighbor_moves = [move for move in neighbor_moves if move in cur_moves]
+
 
 	def __featureTransform(self):
 		#replace weights with a Gaussian at some point

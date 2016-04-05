@@ -1,4 +1,5 @@
 from board import Board
+from move import Move
 import unittest as ut
 from globalconsts import RED, BLACK
 from exampleboards import KINGS, START_MOVE_B_9_13, START_MOVE_R_21_17
@@ -47,8 +48,8 @@ class BoardTestCase(ut.TestCase):
 		self.board.getMoveList(RED)
 		self.board.getMoveList(BLACK)
 
-		self.assertTrue(self.board.verifyMove(BLACK, Board(new_grid = START_MOVE_B_9_13)))
-		self.assertTrue(self.board.verifyMove(RED, Board(new_grid = START_MOVE_R_21_17)))
+		self.assertTrue(self.board.verifyMove(BLACK, next_board = Board(new_grid = START_MOVE_B_9_13)))
+		self.assertTrue(self.board.verifyMove(RED, next_board = Board(new_grid = START_MOVE_R_21_17)))
 
 
 if __name__ == "__main__":
