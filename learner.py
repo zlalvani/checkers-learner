@@ -20,7 +20,8 @@ class Learner(object):
 			self.weights_list.append(weights)
 
 		self.threshold = threshold
-		self.__featureTransform()
+		#self.__featureTransform()
+		self.X = np.array(self.state_list)
 
 		assert(self.X.shape == (len(points), 32))
 		#Think about different distance metrics. Manhattan or minkowski?
@@ -41,25 +42,21 @@ class Learner(object):
 		#dist, ind = self.__tree.query(current_board.getArray(), k=3)
 		ind = self.__tree.query_radius(current_board.getArray(), r = self.threshold).tolist()
 
-		cur_moves = current_board.getMoveList(AI_COLOR)
-		possible_moves = []
+		#cur_moves = current_board.getMoveList(AI_COLOR)
+		moves = []
 		weights = []
 		for i in ind:
 			_board = Board(new_array = self.state_list[i])
-			for board, move in _board.getMoveList(AI_COLOR):
+			assert(len(_board.getMoveList(AI_COLOR)) == len(self.weights_list[i]))
+			for j, (board, move) in enumerate(_board.getMoveList(AI_COLOR)):
 				if current_board.verifyMove(move = move):
-					pass
-			'''
-			if current_board.verifyMove(next_board = _board):
-				next_moves = _board.getMoveList(AI_COLOR)
-				assert(len(next_moves) == len(weights_list[i]))
-				neighbor_moves += _board.getMoveList(AI_COLOR)
-				weights += self.weights_list[i]
-			'''
-		if len(possible_moves) == 0:
+					moves += move
+					weights += self.weights_list[i][j]
+		if len(moves) == 0:
 			return None
 		else:
-			return random.choice(possible_moves)
+			assert(len(moves) == len(weights))
+			return np.random.choice(moves, 1, weights)
 		#neighbor_moves = [move for move in neighbor_moves if move in cur_moves]
 		
 
