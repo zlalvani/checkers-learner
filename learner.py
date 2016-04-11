@@ -1,9 +1,5 @@
-<<<<<<< HEAD
-bimport numpy as np
-=======
 import random
 import numpy as np
->>>>>>> 1de665a88dc3525e3750c1ca392eb15ac3b69586
 from sklearn.neighbors import BallTree
 from globalconsts import \
 	EMPTY, RED, BLACK, BKING, RKING, \
@@ -40,10 +36,8 @@ class Learner(object):
 			return __getMinimax(current_board)
 
 	def __getMinimax(self, current_board):
-		minMax2(current_board, 2):
-
-		pass
-
+		(bestBoard, bestVal) = minMax2(current_board, 2)
+		return bestBoard
 
 	def __getNearestNeighbors(self, current_board):
 		#dist, ind = self.__tree.query(current_board.getArray(), k=3)
