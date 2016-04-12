@@ -20,13 +20,13 @@ class Learner(object):
 			self.weights_list.append(weights)
 
 		self.threshold = threshold
-		
+
 		#self.__featureTransform()
 		self.X = np.array(self.state_list)
 
 		assert(self.X.shape == (len(data_points), 32) or len(data_points) == 0)
 		#Think about different distance metrics. Manhattan or minkowski?
-		if data_points > 0:
+		if len(data_points) > 0:
 			self.__tree = BallTree(X, metric='manhattan')
 
 	def getNextMove(self, current_board):
@@ -35,7 +35,7 @@ class Learner(object):
 		if nn_move is not None:
 			return nn_move
 		else:
-			return __getMinimax(current_board)
+			return self.__getMinimax(current_board)
 
 	def __getMinimax(self, current_board):
 		(bestBoard, bestVal) = minMax2(current_board, 2)
@@ -43,7 +43,7 @@ class Learner(object):
 
 	def __getNearestNeighbors(self, current_board):
 		#dist, ind = self.__tree.query(current_board.getArray(), k=3)
-		if (len(self.weights_list) == 0): 
+		if (len(self.weights_list) == 0):
 			return None
 		ind = self.__tree.query_radius(current_board.getArray(), r = self.threshold).tolist()
 
