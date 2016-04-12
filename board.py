@@ -16,12 +16,12 @@ class Board(object):
 			self.__grid = cp.deepcopy(new_grid)
 		elif new_array is not None:
 			assert(len(new_array) == 32)
-			self.__grid = self.__newBoard()
+			self.__newBoard()
 			for i in range(32):
 				if i % 8 < 4:
-					self.__grid[i / 8][2 * (i % 4)] = new_array[i]
+					self.__grid[i / 4][2 * (i % 4) + 1] = new_array[i]
 				else:
-					self.__grid[i / 8][2 * (i % 4) + 1] = new_array[i]
+					self.__grid[i / 4][2 * (i % 4)] = new_array[i]
 		else:
 			self.__newBoard()
 
