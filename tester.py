@@ -3,7 +3,7 @@ from learner import Learner
 from move import Move
 import unittest as ut
 from globalconsts import RED, BLACK
-from exampleboards import KINGS, START_MOVE_B_9_13, START_MOVE_R_21_17
+from exampleboards import KINGS, START_MOVE_B_9_13, START_MOVE_R_21_17, RED_EASY_LOOKAHEAD
 
 class BoardTestCase(ut.TestCase):
 	def setUp(self):
@@ -16,9 +16,9 @@ class BoardTestCase(ut.TestCase):
 		self.board.getMoveList(RED)
 		self.board.getMoveList(BLACK)
 
-		self.board.printBoard()
-		print "red moves:", len(self.board.getMoveList(RED))
-		print "black moves:", len(self.board.getMoveList(BLACK))
+		# self.board.printBoard()
+		# print "red moves:", len(self.board.getMoveList(RED))
+		# print "black moves:", len(self.board.getMoveList(BLACK))
 
 		self.assertEqual(len(self.board.getMoveList(RED)), 7, \
 			'incorrect number of RED moves available')
@@ -31,15 +31,21 @@ class BoardTestCase(ut.TestCase):
 		self.board.getMoveList(RED)
 		self.board.getMoveList(BLACK)
 
-		self.board.printBoard()
-		print "red moves:", len(self.board.getMoveList(RED))
-		print "black moves:", len(self.board.getMoveList(BLACK))
+		# self.board.printBoard()
+		# print "red moves:", len(self.board.getMoveList(RED))
+		# print "black moves:", len(self.board.getMoveList(BLACK))
 
 		self.assertEqual(len(self.board.getMoveList(RED)), 6, \
 			'incorrect number of RED moves available')
 
 		self.assertEqual(len(self.board.getMoveList(BLACK)), 1, \
 			'incorrect number of BLACK moves available')
+
+		# ---------- My Testing -----------------
+		self.board = Board(new_grid = RED_EASY_LOOKAHEAD)
+		for bd in self.board.getMoveList(RED):
+			bd[0].printBoard()
+
 
 
 	def testVerifyMove(self):
@@ -62,9 +68,10 @@ class LearnerTestCase(ut.TestCase):
 		self.board = None
 
 	def testMinimax(self):
-		# self.learner.getNextMove(self.board)
+		# self.board= Board(new_grid = RED_EASY_LOOKAHEAD)
+		# print(self.learner.getNextMove(self.board))
 		pass
-
+		
 if __name__ == "__main__":
 
 	getMovesTestCase = BoardTestCase('testGetMovesList')
@@ -77,7 +84,7 @@ if __name__ == "__main__":
 	getMinimaxTestCase = LearnerTestCase('testMinimax')
 
 	learnerTestSuite = ut.TestSuite()
-	learnerTestSuite.addTest(getMinimaxTestCase)
+	# learnerTestSuite.addTest(getMinimaxTestCase)
 
 	alltests = ut.TestSuite([boardTestSuite, learnerTestSuite])
 

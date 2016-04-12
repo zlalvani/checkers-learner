@@ -38,7 +38,9 @@ class Learner(object):
 			return self.__getMinimax(current_board)
 
 	def __getMinimax(self, current_board):
-		(bestBoard, bestVal) = minMax2(current_board, 2)
+		(bestBoard, bestVal) = minMax2(current_board, 4)
+		bestBoard[0].printBoard()
+		print("bestVal", bestVal)
 		return bestBoard
 
 	def __getNearestNeighbors(self, current_board):
@@ -109,9 +111,10 @@ def maxMinBoard(board, currentDepth, bestMove):
     """
         Does the actual work of calculating the best move
     """
+    print("---------- in here ----------", currentDepth)
     # Check if we are at an end node
-    if is_won(board) or currentDepth <= 0:
-		return (np.sum(board.getArray()), 1)
+    if currentDepth <= 0:
+		return (np.sum(board[0].getArray()), 1)
 
     # So we are not at an end node, now we need to do minmax
     # Set up values for minmax
@@ -121,23 +124,29 @@ def maxMinBoard(board, currentDepth, bestMove):
     # MaxNode
     if bestMove == float('-inf'):
         # Create the iterator for the Moves
-        board_moves = board.iterBlackMoves()
+        board_moves = board.getMoveList(AI_COLOR)
         for board_move in board_moves:
+            print("getting opp best future move")
+            board_move[0].printBoard()
             value = minMove2(board_move, currentDepth-1)[1]
             if value > best_move_value:
+                print("Best opp move is ")
+                board_move[0].printBoard()
                 best_move_value = value
-                best_board = maxBoard
+                best_board = board_move
 
     # MinNode
     elif bestMove == float('inf'):
-        board_moves = board.iterWhiteMoves()
+        board_moves = board.getMoveList(PLAYER_COLOR)
         for board_move in board_moves:
             value = maxMove2(board_move, currentDepth-1)[1]
             # Take the smallest value we can
             if value < best_move_value:
                 best_move_value = value
-                best_board = minBoard
+                best_board = board_move
 
+	print("best Board here")
+	best_board.printBoard()
     # Things appear to be fine, we should have a board with a good value to move to
     return (best_board, best_move_value)
 
