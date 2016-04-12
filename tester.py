@@ -1,4 +1,5 @@
 from board import Board
+from learner import Learner
 from move import Move
 import unittest as ut
 from globalconsts import RED, BLACK
@@ -52,6 +53,18 @@ class BoardTestCase(ut.TestCase):
 		self.assertTrue(self.board.verifyMove(RED, next_board = Board(new_grid = START_MOVE_R_21_17)))
 
 
+class LearnerTestCase(ut.TestCase):
+	def setUp(self):
+		self.board = Board()
+		self.learner = Learner()
+
+	def tearDown(self):
+		self.board = None
+
+	def testMinimax(self):
+		# self.learner.getNextMove(self.board)
+		pass
+
 if __name__ == "__main__":
 
 	getMovesTestCase = BoardTestCase('testGetMovesList')
@@ -61,7 +74,12 @@ if __name__ == "__main__":
 	boardTestSuite.addTest(getMovesTestCase)
 	boardTestSuite.addTest(verifyMoveTestCase)
 
-	alltests = ut.TestSuite([boardTestSuite])
+	getMinimaxTestCase = LearnerTestCase('testMinimax')
+
+	learnerTestSuite = ut.TestSuite()
+	learnerTestSuite.addTest(getMinimaxTestCase)
+
+	alltests = ut.TestSuite([boardTestSuite, learnerTestSuite])
 
 	ut.main()
 
