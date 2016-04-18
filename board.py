@@ -122,8 +122,10 @@ class Board(object):
 			for col in range(8):
 				if np.sign(self.__grid[row][col]) == color:
 					jumps_list += self.__getPieceJumps(color, row, col)
+					print len(jumps_list)
 					moves_list += self.__getPieceMoves(color, row, col)
-		return (jumps_list if len(jumps_list) else moves_list)
+					#print len(moves_list)
+		return (jumps_list if len(jumps_list) > 0 else moves_list)
 
 	def __getPieceJumps(self, color, row, col, piece_jumps = [], depth_flag = False, move = None):#, jump_tree = []):
 
@@ -133,25 +135,28 @@ class Board(object):
 		dirs = [d for d in dirs if d != 0]
 		move_flag = False
 		for d in dirs:
-			#new_tree = jump_tree[:]
 			res1 = self.__checkDirection(color, row, col, d, 1)
 			res2 = self.__checkDirection(color, row, col, d, 2)
 			if res1 is not None and res2 is not None \
-			and np.sign(res1[0]) is -color \
-			and res2[0] is EMPTY:
+			and np.sign(res1[0]) == -color \
+			and res2[0] == EMPTY:
 				move_board = Board(self)
 				if move is None:
-					new_move = Move((row, col, color), d, multiple = 2)
+					move = Move((row, col, color), d, multiple = 2)
 				else:
 					move.add(d)
-				move_board.__grid[row][col] = EMPTY
+					#new_move = move
+				move_board.__grid[res2[1]][res2[2]] = move_board.__grid[row][col]
 				move_board.__grid[res1[1]][res1[2]] = EMPTY
-				move_board.__grid[res2[1]][res2[2]] = color
+				move_board.__grid[row][col] = EMPTY
 				#new_tree.add(move)
 				move_flag = True
-				move_board.__getPieceJumps(color, res2[1], res2[2], piece_jumps, depth_flag = True, move = new_move)
+				move_board.__getPieceJumps(color, res2[1], res2[2], piece_jumps, depth_flag = True, move = move)
 		if not move_flag and depth_flag:
-			piece_jumps.append(Board(self), move)
+			print "test"
+			piece_jumps.append((Board(self), cp.deepcopy(move)))
+			return
+		print "jumps", len(piece_jumps)
 		return piece_jumps
 
 	def __checkDirection(self, color, row, col, direction, multiple = 1):
@@ -191,7 +196,7 @@ class Board(object):
 
 		for d in dirs:
 			result = self.__checkDirection(color, row, col, d)
-			if result is not None and result[0] is EMPTY:
+			if result is not None and result[0] == EMPTY:
 				move_board = Board(self) #maybe problem
 				val = move_board.__grid[row][col]
 				move_board.__grid[row][col] = EMPTY

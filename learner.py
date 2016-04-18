@@ -1,5 +1,6 @@
 import random
 import numpy as np
+from board import Board
 from sklearn.neighbors import BallTree
 from globalconsts import \
 	EMPTY, RED, BLACK, BKING, RKING, \
@@ -27,7 +28,7 @@ class Learner(object):
 		assert(self.X.shape == (len(data_points), 32) or len(data_points) == 0)
 		#Think about different distance metrics. Manhattan or minkowski?
 		if len(data_points) > 0:
-			self.__tree = BallTree(X, metric='manhattan')
+			self.__tree = BallTree(self.X, metric='manhattan')
 
 	def getNextMove(self, current_board):
 
@@ -54,7 +55,7 @@ class Learner(object):
 			_board = Board(new_array = self.state_list[i])
 			assert(len(_board.getMoveList(AI_COLOR)) == len(self.weights_list[i]))
 			for j, (board, move) in enumerate(_board.getMoveList(AI_COLOR)):
-				if current_board.verifyMove(move = move):
+				if current_board.verifyMove(AI_COLOR, move = move):
 					moves += move
 					weights += self.weights_list[i][j]
 		if len(moves) == 0:
