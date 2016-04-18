@@ -70,7 +70,7 @@ class Board(object):
 
 
 	def getMoveList(self, color):
-		if len(self.__moves[color]):
+		if len(self.__moves[color]) > 0:
 			return cp.deepcopy(self.__moves[color])
 		else:
 			self.__moves[color] = self.__checkForMoves(color)
@@ -78,7 +78,7 @@ class Board(object):
 
 	def getPieces(self, color):
 		#look into named tuples for pieces
-		if len(self.__pieces[color]):
+		if len(self.__pieces[color]) > 0:
 			return cp.deepcopy(self.__pieces[color])
 		else:
 			self.__pieces[color] = self.__storePieceLocations(color)
@@ -122,12 +122,16 @@ class Board(object):
 			for col in range(8):
 				if np.sign(self.__grid[row][col]) == color:
 					jumps_list += self.__getPieceJumps(color, row, col)
-					print len(jumps_list)
+					#print len(jumps_list)
 					moves_list += self.__getPieceMoves(color, row, col)
 					#print len(moves_list)
 		return (jumps_list if len(jumps_list) > 0 else moves_list)
 
-	def __getPieceJumps(self, color, row, col, piece_jumps = [], depth_flag = False, move = None):#, jump_tree = []):
+	def __getPieceJumps(self, color, row, col, piece_jumps = None, depth_flag = False, move = None):#, jump_tree = []):
+
+		#I literally have no idea how this fixed anything but it did: 
+		if piece_jumps is None:
+			piece_jumps = []
 
 		king = (self.__grid[row][col] == RKING or self.__grid[row][col] == BKING)
 
@@ -143,20 +147,29 @@ class Board(object):
 				move_board = Board(self)
 				if move is None:
 					move = Move((row, col, color), d, multiple = 2)
+					new_move = move
 				else:
-					move.add(d)
-					#new_move = move
+					new_move = cp.deepcopy(move)
+					new_move.add(d) 
+
 				move_board.__grid[res2[1]][res2[2]] = move_board.__grid[row][col]
 				move_board.__grid[res1[1]][res1[2]] = EMPTY
 				move_board.__grid[row][col] = EMPTY
-				#new_tree.add(move)
+
 				move_flag = True
-				move_board.__getPieceJumps(color, res2[1], res2[2], piece_jumps, depth_flag = True, move = move)
+				move_board.__getPieceJumps(color, res2[1], res2[2], piece_jumps, depth_flag = True, move = new_move)
+
 		if not move_flag and depth_flag:
-			print "test"
+			#print "test"
 			piece_jumps.append((Board(self), cp.deepcopy(move)))
 			return
-		print "jumps", len(piece_jumps)
+		#print "jumps", len(piece_jumps)
+		'''
+		if len(piece_jumps) > 0:
+			return piece_jumps
+		else:
+			return None
+		'''
 		return piece_jumps
 
 	def __checkDirection(self, color, row, col, direction, multiple = 1):

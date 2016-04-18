@@ -3,7 +3,7 @@ from learner import Learner
 from move import Move
 import unittest as ut
 from globalconsts import RED, BLACK, AI_COLOR, PLAYER_COLOR
-from exampleboards import KINGS, START_MOVE_B_9_13, START_MOVE_R_21_17
+from exampleboards import KINGS, START_MOVE_B_9_13, START_MOVE_R_21_17, CORNER
 
 class BoardTestCase(ut.TestCase):
 	def setUp(self):
@@ -13,49 +13,41 @@ class BoardTestCase(ut.TestCase):
 		self.board = None
 
 	def testGetMovesList(self):
-		self.board.getMoveList(RED)
-		self.board.getMoveList(BLACK)
+		def testWithGrid(grid = None, red_c = 7, black_c = 7):
+			self.board = Board(new_grid = grid)
+			self.board.getMoveList(RED)
+			self.board.getMoveList(BLACK)
 
-		self.board.printBoard()
-		print "red moves:", len(self.board.getMoveList(RED))
-		print "black moves:", len(self.board.getMoveList(BLACK))
+			self.board.printBoard()
+			print "red moves:", len(self.board.getMoveList(RED))
+			print "black moves:", len(self.board.getMoveList(BLACK))
 
-		self.assertEqual(len(self.board.getMoveList(RED)), 7, \
-			'incorrect number of RED moves available')
+			self.assertEqual(len(self.board.getMoveList(RED)), red_c, \
+				'incorrect number of RED moves available')
 
-		self.assertEqual(len(self.board.getMoveList(BLACK)), 7, \
-			'incorrect number of BLACK moves available')
-		
-		self.board = Board(new_grid = KINGS)
+			self.assertEqual(len(self.board.getMoveList(BLACK)), black_c, \
+				'incorrect number of BLACK moves available')
 
-		#switching the order of these gives wrong results...
-		self.board.getMoveList(RED)
-		self.board.getMoveList(BLACK)
+			for board, move in self.board.getMoveList(BLACK) + self.board.getMoveList(RED):
+				print
+				move.printMove()
+				board.printBoard()
 
-		self.board.printBoard()
-		print "red moves:", len(self.board.getMoveList(RED))
-		print "black moves:", len(self.board.getMoveList(BLACK))
 
-		self.assertEqual(len(self.board.getMoveList(RED)), 6, \
-			'incorrect number of RED moves available')
+		testWithGrid()
+		testWithGrid(KINGS, 6, 1)
+		testWithGrid(CORNER, 6, 2)
 
-		self.assertEqual(len(self.board.getMoveList(BLACK)), 1, \
-			'incorrect number of BLACK moves available')
-
-		for board, move in self.board.getMoveList(BLACK):
-			move.printMove()
-			board.printBoard()
 		
 	def testVerifyMove(self):
 		'''
 		For board verify that a move is valid and in the set of moves
 		'''
-		#self.board = None
-		#self.board = Board()
-		self.board.printBoard()
+
 		self.board.getMoveList(RED)
 		self.board.getMoveList(BLACK)
 
+		'''
 		print len(self.board.getMoveList(RED))
 		print len(self.board.getMoveList(BLACK))
 
@@ -63,8 +55,8 @@ class BoardTestCase(ut.TestCase):
 		#	print
 			#move.printMove()
 			continue
+		'''
 
-		#print self.board.ge
 		self.assertTrue(self.board.verifyMove(BLACK, next_board = Board(new_grid = START_MOVE_B_9_13)))
 		self.assertTrue(self.board.verifyMove(RED, next_board = Board(new_grid = START_MOVE_R_21_17)))
 
