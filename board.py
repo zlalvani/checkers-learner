@@ -3,7 +3,8 @@ import copy as cp
 from move import Move
 from globalconsts import \
 	EMPTY, RED, BLACK, BKING, RKING, \
-	FORWARD_LEFT, FORWARD_RIGHT, BACKWARD_LEFT, BACKWARD_RIGHT
+	FORWARD_LEFT, FORWARD_RIGHT, BACKWARD_LEFT, BACKWARD_RIGHT, \
+	WIN, CONTINUE, LOSE
 
 #http://www.learnpython.org/en/Multiple_Function_Arguments
 
@@ -83,6 +84,15 @@ class Board(object):
 		else:
 			self.__pieces[color] = self.__storePieceLocations(color)
 			return self.getPieces(color)
+
+	def checkGameStatus(self, color):
+		assert(not (self.getMoveList(color) == 0 and self.getMoveList(-color) == 0))
+		if len(self.getMoveList(color)) == 0:
+			return LOSE
+		if len(self.getMoveList(-color) == 0)
+			return WIN
+		return CONTINUE
+			
 
 	def getInverse(self):
 		return Board(new_array = np.array([-p for p in self.getArray().tolist()]))
