@@ -1,10 +1,11 @@
 import random
 import numpy as np
+from board import Board
 from sklearn.neighbors import BallTree
 from globalconsts import \
 	EMPTY, RED, BLACK, BKING, RKING, \
 	FORWARD_LEFT, FORWARD_RIGHT, BACKWARD_LEFT, BACKWARD_RIGHT, \
-	AI_COLOR, THRESHOLD
+	AI_COLOR, THRESHOLD, PLAYER_COLOR
 
 class Learner(object):
 	'''
@@ -27,7 +28,7 @@ class Learner(object):
 		assert(self.X.shape == (len(data_points), 32) or len(data_points) == 0)
 		#Think about different distance metrics. Manhattan or minkowski?
 		if len(data_points) > 0:
-			self.__tree = BallTree(X, metric='manhattan')
+			self.__tree = BallTree(self.X, metric='manhattan')
 
 	def getNextMove(self, current_board):
 
@@ -38,9 +39,9 @@ class Learner(object):
 			return self.__getMinimax(current_board)
 
 	def __getMinimax(self, current_board):
-		(bestBoard, bestVal) = minMax2(current_board, 4)
-		bestBoard[0].printBoard()
+		(bestBoard, bestVal) = minMax2(current_board, 6)
 		print("bestVal", bestVal)
+		bestBoard[0].printBoard()
 		return bestBoard
 
 	def __getNearestNeighbors(self, current_board):
@@ -56,7 +57,7 @@ class Learner(object):
 			_board = Board(new_array = self.state_list[i])
 			assert(len(_board.getMoveList(AI_COLOR)) == len(self.weights_list[i]))
 			for j, (board, move) in enumerate(_board.getMoveList(AI_COLOR)):
-				if current_board.verifyMove(move = move):
+				if current_board.verifyMove(AI_COLOR, move = move):
 					moves += move
 					weights += self.weights_list[i][j]
 		if len(moves) == 0:
@@ -111,10 +112,9 @@ def maxMinBoard(board, currentDepth, bestMove):
     """
         Does the actual work of calculating the best move
     """
-    print("---------- in here ----------", currentDepth)
     # Check if we are at an end node
     if currentDepth <= 0:
-		return (np.sum(board[0].getArray()), 1)
+		return (np.sum(board.getArray()), 1)
 
     # So we are not at an end node, now we need to do minmax
     # Set up values for minmax
@@ -126,12 +126,9 @@ def maxMinBoard(board, currentDepth, bestMove):
         # Create the iterator for the Moves
         board_moves = board.getMoveList(AI_COLOR)
         for board_move in board_moves:
-            print("getting opp best future move")
             board_move[0].printBoard()
-            value = minMove2(board_move, currentDepth-1)[1]
+            value = minMove2(board_move[0], currentDepth-1)[1]
             if value > best_move_value:
-                print("Best opp move is ")
-                board_move[0].printBoard()
                 best_move_value = value
                 best_board = board_move
 
@@ -139,14 +136,13 @@ def maxMinBoard(board, currentDepth, bestMove):
     elif bestMove == float('inf'):
         board_moves = board.getMoveList(PLAYER_COLOR)
         for board_move in board_moves:
-            value = maxMove2(board_move, currentDepth-1)[1]
+            value = maxMove2(board_move[0], currentDepth-1)[1]
             # Take the smallest value we can
             if value < best_move_value:
                 best_move_value = value
                 best_board = board_move
 
-	print("best Board here")
-	best_board.printBoard()
+	best_board[0].printBoard()
     # Things appear to be fine, we should have a board with a good value to move to
     return (best_board, best_move_value)
 

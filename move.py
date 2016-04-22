@@ -30,3 +30,28 @@ class Move(object):
 		new_move.__chain = cp.deepcopy(self.__chain)
 		return new_move
 
+	def printMove(self):
+		piece_dic = {
+			RED : 'RED',
+			BLACK : 'BLACK',
+			RKING : 'RKING',
+			BKING : 'BKING'
+		}
+		
+		dir_dic = {
+			FORWARD_LEFT : "FWD_LEFT",
+			FORWARD_RIGHT : "FWD_RIGHT",
+			BACKWARD_LEFT : "BWD_LEFT",
+			BACKWARD_RIGHT : "BWD_RIGHT"
+		}
+
+		mul_dic = {
+			2 : "JUMP",
+			1 : "MOVE"
+		}
+
+		print piece_dic[self.__color], mul_dic[self.__multiple], "AT:", self.__piece[0], self.__piece[1]
+		print "\t" + "Direction List:"
+		for d in self.__chain:
+			print "\t\t" + dir_dic[d]
+
