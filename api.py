@@ -5,8 +5,10 @@ app = Flask(__name__, static_url_path='')
 
 @app.route('/verify', methods=['POST'])
 def verify_move():
+    print("here")
     content = request.json
-    # verified  = get_next_move();
+    boardArray = [int(str(element)) for element in content['data']]
+    print(boardArray)
     verified = True
     return json.dumps(verified)
 

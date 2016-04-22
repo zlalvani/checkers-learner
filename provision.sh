@@ -11,7 +11,8 @@ sudo update-alternatives --set liblapack.so.3 \
     /usr/lib/atlas-base/atlas/liblapack.so.3
 
 sudo pip install -U scikit-learn
-sudo pip install flask
+sudo pip install -U flask
+sudo apt-get -y install node npm
 #setup virtualenv for the python environment
 #sudo pip install virtualenv
 #cd /vagrant && sudo pip install -r requirements.txt
