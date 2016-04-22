@@ -4,8 +4,7 @@ from move import Move
 import unittest as ut
 from globalconsts import RED, BLACK, AI_COLOR, PLAYER_COLOR, \
 	FORWARD_LEFT, FORWARD_RIGHT, BACKWARD_LEFT, BACKWARD_RIGHT
-from exampleboards import KINGS, START_MOVE_B_9_13, START_MOVE_R_21_17, \
-	CORNER, RED_EASY_LOOKAHEAD, RED_EASY_LOOKAHEAD_2
+from exampleboards import *
 
 class BoardTestCase(ut.TestCase):
 	def setUp(self):
@@ -46,6 +45,13 @@ class BoardTestCase(ut.TestCase):
 		testWithGrid()
 		testWithGrid(KINGS, 6, 1)
 		testWithGrid(CORNER, 6, 2)
+
+		self.board = Board(new_grid = NEW_KING)
+		test_board = Board(new_grid = NEW_KING_RESULT)
+		
+		self.assertTrue(any(bd[0] == test_board for bd in self.board.getMoveList(RED)))
+
+
 
 
 	def testVerifyMove(self):
@@ -99,12 +105,13 @@ class MoveTestCase(ut.TestCase):
 		self.move.add(FORWARD_RIGHT)
 
 		new_move = self.move.clone()
-		print
-		print "Move:"
-		self.move.printMove()
-		print
-		print "New Move:"
-		new_move.printMove()
+
+		# print
+		# print "Move:"
+		# self.move.printMove()
+		# print
+		# print "New Move:"
+		# new_move.printMove()
 
 		self.assertTrue(self.move == new_move)
 

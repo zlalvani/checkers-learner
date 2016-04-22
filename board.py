@@ -127,7 +127,7 @@ class Board(object):
 					#print len(moves_list)
 		return (jumps_list if len(jumps_list) > 0 else moves_list)
 
-	def __getPieceJumps(self, color, row, col, piece_jumps = None, depth_flag = False, move = None):#, jump_tree = []):
+	def __getPieceJumps(self, color, row, col, piece_jumps = None, depth_flag = False, move = None, new_king = False):
 
 		#I literally have no idea how this fixed anything but it did: 
 		if piece_jumps is None:
@@ -143,7 +143,8 @@ class Board(object):
 			res2 = self.__checkDirection(color, row, col, d, 2)
 			if res1 is not None and res2 is not None \
 			and np.sign(res1[0]) == -color \
-			and res2[0] == EMPTY:
+			and res2[0] == EMPTY \
+			and new_king == False:
 				move_board = Board(self)
 				if move is None:
 					move = Move((row, col, color), d, multiple = 2)
@@ -152,24 +153,28 @@ class Board(object):
 					new_move = cp.deepcopy(move)
 					new_move.add(d) 
 
+				#check for king here: 
+
 				move_board.__grid[res2[1]][res2[2]] = move_board.__grid[row][col]
 				move_board.__grid[res1[1]][res1[2]] = EMPTY
 				move_board.__grid[row][col] = EMPTY
 
+				if not king: 
+					if (res2[1] == 0 and color == RED) or (res2[1] == 7 and color == BLACK):
+						move_board.__grid[res2[1]][res2[2]] *= 2
+						king_flag = True
+				else:
+					king_flag = False
+
 				move_flag = True
-				move_board.__getPieceJumps(color, res2[1], res2[2], piece_jumps, depth_flag = True, move = new_move)
+				move_board.__getPieceJumps(color, res2[1], res2[2], piece_jumps, depth_flag = True, move = new_move, new_king = king_flag)
 
 		if not move_flag and depth_flag:
 			#print "test"
 			piece_jumps.append((Board(self), cp.deepcopy(move)))
 			return
 		#print "jumps", len(piece_jumps)
-		'''
-		if len(piece_jumps) > 0:
-			return piece_jumps
-		else:
-			return None
-		'''
+
 		return piece_jumps
 
 	def __checkDirection(self, color, row, col, direction, multiple = 1):
@@ -215,6 +220,8 @@ class Board(object):
 				move_board.__grid[row][col] = EMPTY
 				move_board.__grid[result[1]][result[2]] = val
 				new_move = Move((row, col, color), d, multiple = 1)
+				if (result[1] == 0 and color == RED) or (result[1] == 7 and color == BLACK):
+					move_board.__grid[result[1]][result[2]] *= 2
 				piece_moves.append((move_board, new_move))
 
 

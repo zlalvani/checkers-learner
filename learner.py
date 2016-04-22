@@ -1,4 +1,3 @@
-import random
 import numpy as np
 from board import Board
 from sklearn.neighbors import BallTree
@@ -26,7 +25,7 @@ class Learner(object):
 		self.X = np.array(self.state_list)
 
 		assert(self.X.shape == (len(data_points), 32) or len(data_points) == 0)
-		#Think about different distance metrics. Manhattan or minkowski?
+		#Think about different distance metrics. Manhattan or minkowski? P < 1?
 		if len(data_points) > 0:
 			self.__tree = BallTree(self.X, metric='manhattan')
 		else:
@@ -39,6 +38,9 @@ class Learner(object):
 			return nn_move
 		else:
 			return self.__getMinimax(current_board)
+
+	def updateWeights(self):
+		pass
 
 	def __getMinimax(self, current_board):
 		(bestBoard, bestVal) = minMax2(current_board, 6)
