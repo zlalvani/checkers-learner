@@ -7,8 +7,8 @@ from globalconsts import \
 
 class Move(object):
 	'''A class to represent a Move, i.e. a chain of piece coordinate updates'''
-	def __init__(self, piece, direction, multiple = 1):
-		assert(direction in [FORWARD_LEFT, FORWARD_RIGHT, BACKWARD_LEFT, BACKWARD_RIGHT])
+	def __init__(self, piece, direction = None, multiple = 1):
+		assert(direction in [FORWARD_LEFT, FORWARD_RIGHT, BACKWARD_LEFT, BACKWARD_RIGHT, None])
 		assert(multiple in [1, 2])
 		assert(piece[2] in [RED, BLACK])
 		self.__chain = []
@@ -19,15 +19,20 @@ class Move(object):
 
 	def __eq__(self, other):
 		#doesn't handle opposite color but same move case
+		if other is None:
+			return False
 		return cmp(self.__chain, other.__chain) == 0 and cmp(self.__piece, other.__piece) == 0
 
 	def add(self, direction):
-		assert(direction in [FORWARD_LEFT, FORWARD_RIGHT, BACKWARD_LEFT, BACKWARD_RIGHT])
+		assert(direction in [FORWARD_LEFT, FORWARD_RIGHT, BACKWARD_LEFT, BACKWARD_RIGHT, None])
 		self.__chain.append(direction)
 
+	def getChain(self):
+		return cp.deepcopy(self.__chain)
+
 	def clone(self):
-		new_move = Move(self.__color, self.__piece, self.__direction, self.__multiple)
-		new_move.__chain = cp.deepcopy(self.__chain)
+		new_move = Move(piece = self.__piece, multiple = self.__multiple)
+		new_move.__chain = self.getChain()
 		return new_move
 
 	def printMove(self):
@@ -37,7 +42,7 @@ class Move(object):
 			RKING : 'RKING',
 			BKING : 'BKING'
 		}
-		
+
 		dir_dic = {
 			FORWARD_LEFT : "FWD_LEFT",
 			FORWARD_RIGHT : "FWD_RIGHT",

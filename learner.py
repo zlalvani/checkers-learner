@@ -29,6 +29,8 @@ class Learner(object):
 		#Think about different distance metrics. Manhattan or minkowski?
 		if len(data_points) > 0:
 			self.__tree = BallTree(self.X, metric='manhattan')
+		else:
+			self.__tree = None
 
 	def getNextMove(self, current_board):
 
@@ -44,7 +46,7 @@ class Learner(object):
 
 	def __getNearestNeighbors(self, current_board):
 		#dist, ind = self.__tree.query(current_board.getArray(), k=3)
-		if (len(self.weights_list) == 0):
+		if self.__tree is None:
 			return None
 		ind = self.__tree.query_radius(current_board.getArray(), r = self.threshold).tolist()
 

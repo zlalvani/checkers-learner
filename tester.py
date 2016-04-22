@@ -2,7 +2,8 @@ from board import Board
 from learner import Learner
 from move import Move
 import unittest as ut
-from globalconsts import RED, BLACK, AI_COLOR, PLAYER_COLOR
+from globalconsts import RED, BLACK, AI_COLOR, PLAYER_COLOR, \
+	FORWARD_LEFT, FORWARD_RIGHT, BACKWARD_LEFT, BACKWARD_RIGHT
 from exampleboards import KINGS, START_MOVE_B_9_13, START_MOVE_R_21_17, CORNER
 
 class BoardTestCase(ut.TestCase):
@@ -33,7 +34,6 @@ class BoardTestCase(ut.TestCase):
 				move.printMove()
 				board.printBoard()
 
-
 		testWithGrid()
 		testWithGrid(KINGS, 6, 1)
 		testWithGrid(CORNER, 6, 2)
@@ -47,16 +47,6 @@ class BoardTestCase(ut.TestCase):
 		self.board.getMoveList(RED)
 		self.board.getMoveList(BLACK)
 
-		'''
-		print len(self.board.getMoveList(RED))
-		print len(self.board.getMoveList(BLACK))
-
-		for board, move in self.board.getMoveList(BLACK):
-		#	print
-			#move.printMove()
-			continue
-		'''
-
 		self.assertTrue(self.board.verifyMove(BLACK, next_board = Board(new_grid = START_MOVE_B_9_13)))
 		self.assertTrue(self.board.verifyMove(RED, next_board = Board(new_grid = START_MOVE_R_21_17)))
 
@@ -68,6 +58,7 @@ class LearnerTestCase(ut.TestCase):
 
 	def tearDown(self):
 		self.board = None
+		self.learner = None
 
 	def testMinimax(self):
 		# self.learner.getNextMove(self.board)
@@ -75,19 +66,34 @@ class LearnerTestCase(ut.TestCase):
 
 	def testNearestNeighbor(self):
 		pass
-		#weights = [0] * len(self.board.getMoveList(AI_COLOR))
-		#weights[0] = 1
-		#self.learner = Learner(data_points = [(self.board.getArray().tolist(), weights)])
+		weights = [0] * len(self.board.getMoveList(AI_COLOR))
+		weights[0] = 1
+		self.learner = Learner(data_points = [(self.board.getArray().tolist(), weights)])
 		
-		#self.assertEqual(self.learner.getNextMove(self.board), self.board.getMoveList(AI_COLOR)[0], \
-		#		'predicted best move does not match')
+		self.assertEqual(self.learner.getNextMove(self.board), self.board.getMoveList(AI_COLOR)[0], \
+				'predicted best move does not match')
 
 class MoveTestCase(ut.TestCase):
 	def setUp(self):
-		self.move = Move()
+		piece = (0, 1, BLACK)
+		direction = FORWARD_LEFT
+		self.move = Move(piece, direction)
 
 	def tearDown(self):
 		self.move = None
+
+	def testClone(self):
+		self.move.add(FORWARD_RIGHT)
+
+		new_move = self.move.clone()
+		print
+		print "Move:"
+		self.move.printMove()
+		print
+		print "New Move:"
+		new_move.printMove()
+
+		self.assertTrue(self.move == new_move)
 
 if __name__ == "__main__":
 
