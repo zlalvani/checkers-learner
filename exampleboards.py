@@ -35,6 +35,28 @@ START_MOVE_R_21_17 = [
 	[   RED,     0,   RED,     0,   RED,     0,   RED,     0]
 ]
 
+RED_EASY_LOOKAHEAD = [
+	[     0, BLACK,     0, BLACK,     0, BLACK,     0, BLACK],
+	[ BLACK,     0, BLACK,     0, BLACK,     0,     0,     0],
+	[     0, BLACK,     0,     0,     0, BLACK,     0, BLACK],
+	[ 	  0,     0,     0,     0,     0,     0,     0,     0],
+	[     0,   RED,     0, BLACK,     0,     0,     0,     0],
+	[     0,     0,   RED,     0,   RED,     0,   RED,     0],
+	[     0,   RED,     0,   RED,     0,     0,     0,   RED],
+	[   RED,     0,   RED,     0,   RED,     0,   RED,     0]
+]
+
+RED_EASY_LOOKAHEAD_2 = [
+	[     0, BLACK,     0, BLACK,     0, BLACK,     0, BLACK],
+	[ BLACK,     0, BLACK,     0,     0,     0,     0,     0],
+	[     0, BLACK,     0,     0,     0, BLACK,     0, BLACK],
+	[ 	  0,     0, BLACK,     0, BLACK,     0,     0,     0],
+	[     0,   RED,     0,   RED,     0,     0,     0,     0],
+	[     0,     0,     0,     0,   RED,     0, BLACK,     0],
+	[     0,   RED,     0,   RED,     0,     0,     0,   RED],
+	[     0,     0,   RED,     0,   RED,     0,   RED,     0]
+]
+
 KINGS = [
 	[     0,     0,     0,     0,     0,     0,     0,     0],
 	[     0,     0,     0,     0,     0,     0,     0,     0],
@@ -56,4 +78,3 @@ CORNER = [
 	[     0,   	 0,     0,     0,     0,     0,   RED,     0],
 	[     0,     0,     0,     0,     0,     0,     0, BKING]
 ]
-

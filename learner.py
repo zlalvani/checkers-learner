@@ -5,7 +5,7 @@ from sklearn.neighbors import BallTree
 from globalconsts import \
 	EMPTY, RED, BLACK, BKING, RKING, \
 	FORWARD_LEFT, FORWARD_RIGHT, BACKWARD_LEFT, BACKWARD_RIGHT, \
-	AI_COLOR, THRESHOLD
+	AI_COLOR, THRESHOLD, PLAYER_COLOR
 
 class Learner(object):
 	'''
@@ -39,7 +39,9 @@ class Learner(object):
 			return self.__getMinimax(current_board)
 
 	def __getMinimax(self, current_board):
-		(bestBoard, bestVal) = minMax2(current_board, 2)
+		(bestBoard, bestVal) = minMax2(current_board, 6)
+		print("bestVal", bestVal)
+		bestBoard[0].printBoard()
 		return bestBoard
 
 	def __getNearestNeighbors(self, current_board):
@@ -111,7 +113,7 @@ def maxMinBoard(board, currentDepth, bestMove):
         Does the actual work of calculating the best move
     """
     # Check if we are at an end node
-    if is_won(board) or currentDepth <= 0:
+    if currentDepth <= 0:
 		return (np.sum(board.getArray()), 1)
 
     # So we are not at an end node, now we need to do minmax
@@ -122,23 +124,25 @@ def maxMinBoard(board, currentDepth, bestMove):
     # MaxNode
     if bestMove == float('-inf'):
         # Create the iterator for the Moves
-        board_moves = board.iterBlackMoves()
+        board_moves = board.getMoveList(AI_COLOR)
         for board_move in board_moves:
-            value = minMove2(board_move, currentDepth-1)[1]
+            board_move[0].printBoard()
+            value = minMove2(board_move[0], currentDepth-1)[1]
             if value > best_move_value:
                 best_move_value = value
-                best_board = maxBoard
+                best_board = board_move
 
     # MinNode
     elif bestMove == float('inf'):
-        board_moves = board.iterWhiteMoves()
+        board_moves = board.getMoveList(PLAYER_COLOR)
         for board_move in board_moves:
-            value = maxMove2(board_move, currentDepth-1)[1]
+            value = maxMove2(board_move[0], currentDepth-1)[1]
             # Take the smallest value we can
             if value < best_move_value:
                 best_move_value = value
-                best_board = minBoard
+                best_board = board_move
 
+	best_board[0].printBoard()
     # Things appear to be fine, we should have a board with a good value to move to
     return (best_board, best_move_value)
 
