@@ -52,7 +52,7 @@ class BoardTestCase(ut.TestCase):
 		'''
 		For board verify that a move is valid and in the set of moves
 		'''
-
+		# self.board = Board(new_grid = START_MOVE_B_9_13).getInverse()
 		self.board.getMoveList(RED)
 		self.board.getMoveList(BLACK)
 
@@ -76,8 +76,6 @@ class LearnerTestCase(ut.TestCase):
 		# self.board= Board(new_grid = START)
 		self.board= Board(new_grid = RED_EASY_LOOKAHEAD_2)
 		best = self.learner.getNextMove(self.board)
-		print("here \n \n \n")
-		best[0].printBoard()
 
 
 	def testNearestNeighbor(self):
@@ -103,12 +101,12 @@ class MoveTestCase(ut.TestCase):
 		self.move.add(FORWARD_RIGHT)
 
 		new_move = self.move.clone()
-		print
-		print "Move:"
-		self.move.printMove()
-		print
-		print "New Move:"
-		new_move.printMove()
+		# print
+		# print "Move:"
+		# self.move.printMove()
+		# print
+		# print "New Move:"
+		# new_move.printMove()
 
 		self.assertTrue(self.move == new_move)
 

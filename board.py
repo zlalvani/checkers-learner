@@ -85,7 +85,7 @@ class Board(object):
 			return self.getPieces(color)
 
 	def getInverse(self):
-		return Board(new_array = np.array([-p for p in self.getArray().tolist()]))
+		return Board(new_array = np.array([-p for p in (self.getArray().tolist())[::-1]]))
 
 	def printBoard(self):
 		piece_dic = {
@@ -120,11 +120,9 @@ class Board(object):
 		moves_list = []
 		for row in range(8):
 			for col in range(8):
-				if np.sign(self.__grid[row][col]) == color:
+				if np.sign(int(self.__grid[row][col])) == color:
 					jumps_list += self.__getPieceJumps(color, row, col)
-					#print len(jumps_list)
 					moves_list += self.__getPieceMoves(color, row, col)
-					#print len(moves_list)
 		return (jumps_list if len(jumps_list) > 0 else moves_list)
 
 	def __getPieceJumps(self, color, row, col, piece_jumps = None, depth_flag = False, move = None):#, jump_tree = []):
@@ -160,10 +158,8 @@ class Board(object):
 				move_board.__getPieceJumps(color, res2[1], res2[2], piece_jumps, depth_flag = True, move = new_move)
 
 		if not move_flag and depth_flag:
-			#print "test"
 			piece_jumps.append((Board(self), cp.deepcopy(move)))
 			return
-		#print "jumps", len(piece_jumps)
 		'''
 		if len(piece_jumps) > 0:
 			return piece_jumps
@@ -217,8 +213,6 @@ class Board(object):
 				new_move = Move((row, col, color), d, multiple = 1)
 				piece_moves.append((move_board, new_move))
 
-
-				#move_board.printBoard()
 
 		return piece_moves
 

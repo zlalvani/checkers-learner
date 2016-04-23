@@ -149,10 +149,10 @@ var CheckersUI = (function(){
     for (var i = 0;i < boardArray.length; i++){
       if(boardArray[i] != 0){
         checkers.push({
-          x: (i*2)%8 + (Math.floor(i/4)%2),
-          y: 7 - Math.floor(i/4),
+          x: (i*2)%8 + (Math.floor(1+i/4)%2),
+          y: Math.floor(i/4),
           king : Math.abs(boardArray[i]) > 1,
-          team: boardArray[i] < 0
+          team: boardArray[i] > 0
         });
       }
     }

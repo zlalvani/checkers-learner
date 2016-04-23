@@ -126,7 +126,6 @@ def maxMinBoard(board, currentDepth, bestMove):
         # Create the iterator for the Moves
         board_moves = board.getMoveList(AI_COLOR)
         for board_move in board_moves:
-            # board_move[0].printBoard()
             value = minMove2(board_move[0], currentDepth-1)[1]
             if value > best_move_value:
                 best_move_value = value
