@@ -60,7 +60,7 @@ var CheckersUI = (function(){
   }
 
   function drawChecker(checker){
-    context.fillStyle = checker.team == 0 ? "#f00" : "#000";
+    context.fillStyle = checker.team == 0 ? "#000": "#f00";
     context.strokeStyle = "#fff";
     context.lineWidth = 5;
     context.beginPath();
@@ -144,18 +144,35 @@ var CheckersUI = (function(){
     return ar;
   }
 
+  function convertFromBoardFmt(boardArray){
+    checkers = [];
+    for (var i = 0;i < boardArray.length; i++){
+      if(boardArray[i] != 0){
+        checkers.push({
+          x: (i*2)%8 + (Math.floor(i/4)%2),
+          y: 7 - Math.floor(i/4),
+          king : Math.abs(boardArray[i]) > 1,
+          team: boardArray[i] < 0
+        });
+      }
+    }
+  }
+
+
   function endMove(e){
     var mouse = getMousePosition(e);
     if (grabbing !== null){
       var mc = checkers[grabbing];
       mc.x = Math.round(mouse.x/sqsz - .5);
       mc.y = Math.round(mouse.y/sqsz - .5);
-      if (!self.validate(convertToBoardFmt())){
-        mc.x = mc.oldx;
-        mc.y = mc.oldy;
-      }
-      grabbing = null;
-      redraw();
+      self.validate(convertToBoardFmt(), (valid)=>{
+        if(!valid){
+          mc.x = mc.oldx;
+          mc.y = mc.oldy;
+        }
+        grabbing = null;
+        redraw();
+      });
     }
   }
 
@@ -182,33 +199,51 @@ var CheckersUI = (function(){
     redraw();
   }
 
-  function validate(board){
+  function validate(board, cb){
     console.log(board);
     console.log("hit");
     $.ajax({
-          url: 'http://localhost:8080/api/verify',
-          data: {data: board},
-          type: 'POST',
-          success: function (data) {
-            console.log(data);
-              // var ret = jQuery.parseJSON(data);
-              // $('#lblResponse').html(ret.msg);
-              // console.log('Success: ')
-              return true;
-          },
-          error: function (xhr, status, error) {
-              console.log('Error: ' + error.message);
-              return false;
-          },
-      });
-
+        url: 'http://localhost:8080/api/verify',
+        data: {data: board},
+        type: 'POST',
+        success: function (data) {
+          console.log(data);
+            // var ret = jQuery.parseJSON(data);
+            // $('#lblResponse').html(ret.msg);
+            console.log('Success: ')
+            cb(data.works);
+            // return true;
+        },
+        error: function (xhr, status, error) {
+            console.log('Error: ' + error.message);
+            cb(false);
+        },
+    });
   }
+
+  function AIMove(){
+    $.ajax({
+        url: 'http://localhost:8080/api/getAIMove',
+        type: 'GET',
+        success: function (data) {
+            console.log('Success: ')
+            console.log(data);
+            convertFromBoardFmt(data.board)
+            redraw();
+        },
+        error: function (xhr, status, error) {
+            console.log('Error: ' + error.message);
+        },
+    });
+  }
+
 
   var self = {
     init: init,
     load: load,
     getBoard: getBoard,
-    validate: validate
+    validate: validate,
+    AIMove: AIMove
   };
   return self;
 })();

@@ -10,12 +10,13 @@ module.exports = function(app, express) {
     request({
         uri: "http://127.0.0.1:5000/getAIMove",
         method: "GET",
+				json: req.body,
         timeout: 10000
       }, function(error, response, body) {
       console.log(body);
       // return the information  as JSON
       res.json({
-        works: true
+        board: body
       });
     });
 	});
@@ -31,15 +32,12 @@ module.exports = function(app, express) {
         json: req.body,
         timeout: 10000
       }, function(error, response, body) {
-      console.log(body);
-      // return the information  as JSON
-      res.json({
-        works: true
-      });
-    });
-
-	});
-
+	      // return the information  as JSON
+				res.json({
+	        works: body
+	      });
+	    });
+		});
 
 	return apiRouter;
 };

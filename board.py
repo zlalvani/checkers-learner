@@ -129,7 +129,7 @@ class Board(object):
 
 	def __getPieceJumps(self, color, row, col, piece_jumps = None, depth_flag = False, move = None):#, jump_tree = []):
 
-		#I literally have no idea how this fixed anything but it did: 
+		#I literally have no idea how this fixed anything but it did:
 		if piece_jumps is None:
 			piece_jumps = []
 
@@ -150,7 +150,7 @@ class Board(object):
 					new_move = move
 				else:
 					new_move = cp.deepcopy(move)
-					new_move.add(d) 
+					new_move.add(d)
 
 				move_board.__grid[res2[1]][res2[2]] = move_board.__grid[row][col]
 				move_board.__grid[res1[1]][res1[2]] = EMPTY
