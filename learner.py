@@ -3,9 +3,9 @@ import copy as cp
 from board import Board
 from sklearn.neighbors import BallTree
 from globalconsts import \
-	EMPTY, RED, BLACK, BKING, RKING, \
-	FORWARD_LEFT, FORWARD_RIGHT, BACKWARD_LEFT, BACKWARD_RIGHT, \
-	AI_COLOR, THRESHOLD, PLAYER_COLOR
+    EMPTY, RED, BLACK, BKING, RKING, \
+    FORWARD_LEFT, FORWARD_RIGHT, BACKWARD_LEFT, BACKWARD_RIGHT, \
+    AI_COLOR, THRESHOLD, PLAYER_COLOR
 
 class Learner(object):
 	'''
@@ -120,7 +120,7 @@ def maxMinBoard(board, currentDepth, bestMove):
     """
     # Check if we are at an end node
     if currentDepth <= 0:
-		return (np.sum(board.getArray()), 1)
+        return (board, np.sum(board.getArray()))
 
     # So we are not at an end node, now we need to do minmax
     # Set up values for minmax
@@ -132,7 +132,7 @@ def maxMinBoard(board, currentDepth, bestMove):
         # Create the iterator for the Moves
         board_moves = board.getMoveList(AI_COLOR)
         for board_move in board_moves:
-            # board_move[0].printBoard()
+
             value = minMove2(board_move[0], currentDepth-1)[1]
             if value > best_move_value:
                 best_move_value = value
@@ -148,7 +148,7 @@ def maxMinBoard(board, currentDepth, bestMove):
                 best_move_value = value
                 best_board = board_move
 
-	# best_board[0].printBoard()
+
     # Things appear to be fine, we should have a board with a good value to move to
     return (best_board, best_move_value)
 

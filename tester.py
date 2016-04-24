@@ -6,6 +6,7 @@ from globalconsts import RED, BLACK, AI_COLOR, PLAYER_COLOR, \
 	FORWARD_LEFT, FORWARD_RIGHT, BACKWARD_LEFT, BACKWARD_RIGHT
 from exampleboards import *
 
+
 class BoardTestCase(ut.TestCase):
 	def setUp(self):
 		self.board = Board()
@@ -58,7 +59,7 @@ class BoardTestCase(ut.TestCase):
 		'''
 		For board verify that a move is valid and in the set of moves
 		'''
-
+		# self.board = Board(new_grid = START_MOVE_B_9_13).getInverse()
 		self.board.getMoveList(RED)
 		self.board.getMoveList(BLACK)
 
@@ -76,14 +77,16 @@ class LearnerTestCase(ut.TestCase):
 		self.learner = None
 
 	def testMinimax(self):
-		self.board= Board(new_grid = RED_EASY_LOOKAHEAD)
+		# self.board= Board(new_grid = RED_EASY_LOOKAHEAD)
 		# print(self.learner.getNextMove(self.board))
 
+		# self.board= Board(new_grid = START)
 		self.board= Board(new_grid = RED_EASY_LOOKAHEAD_2)
-		# print(self.learner.getNextMove(self.board))
+		best = self.learner.getNextMove(self.board)
+
 
 	def testNearestNeighbor(self):
-
+		
 		weights = [0] * len(self.board.getMoveList(AI_COLOR))
 		weights[0] = 1
 		self.learner = Learner(data_points = [(self.board.getArray().tolist(), weights)])
@@ -106,12 +109,12 @@ class MoveTestCase(ut.TestCase):
 
 		new_move = self.move.clone()
 
-		# print
-		# print "Move:"
-		# self.move.printMove()
-		# print
-		# print "New Move:"
-		# new_move.printMove()
+		print
+		print "Move:"
+		self.move.printMove()
+		print
+		print "New Move:"
+		new_move.printMove()
 
 		self.assertTrue(self.move == new_move)
 

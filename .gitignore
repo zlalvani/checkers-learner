@@ -60,3 +60,7 @@ target/
 
 #Ipython Notebook
 .ipynb_checkpoints
+
+current_board.pkl
+learner.pkl
+node_modules

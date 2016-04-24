@@ -95,7 +95,7 @@ class Board(object):
 			
 
 	def getInverse(self):
-		return Board(new_array = np.array([-p for p in self.getArray().tolist()]))
+		return Board(new_array = np.array([-p for p in (self.getArray().tolist())[::-1]]))
 
 	def printBoard(self):
 		piece_dic = {
@@ -130,16 +130,14 @@ class Board(object):
 		moves_list = []
 		for row in range(8):
 			for col in range(8):
-				if np.sign(self.__grid[row][col]) == color:
+				if np.sign(int(self.__grid[row][col])) == color:
 					jumps_list += self.__getPieceJumps(color, row, col)
-					#print len(jumps_list)
 					moves_list += self.__getPieceMoves(color, row, col)
-					#print len(moves_list)
 		return (jumps_list if len(jumps_list) > 0 else moves_list)
 
 	def __getPieceJumps(self, color, row, col, piece_jumps = None, depth_flag = False, move = None, new_king = False):
 
-		#I literally have no idea how this fixed anything but it did: 
+		#I literally have no idea how this fixed anything but it did:
 		if piece_jumps is None:
 			piece_jumps = []
 
@@ -161,29 +159,27 @@ class Board(object):
 					new_move = move
 				else:
 					new_move = cp.deepcopy(move)
-					new_move.add(d) 
+					new_move.add(d)
 
 				#check for king here: 
 
 				move_board.__grid[res2[1]][res2[2]] = move_board.__grid[row][col]
 				move_board.__grid[res1[1]][res1[2]] = EMPTY
 				move_board.__grid[row][col] = EMPTY
-
+				king_flag = False
 				if not king: 
 					if (res2[1] == 0 and color == RED) or (res2[1] == 7 and color == BLACK):
 						move_board.__grid[res2[1]][res2[2]] *= 2
 						king_flag = True
-				else:
-					king_flag = False
+				# else:
+				# 	king_flag = False
 
 				move_flag = True
 				move_board.__getPieceJumps(color, res2[1], res2[2], piece_jumps, depth_flag = True, move = new_move, new_king = king_flag)
 
 		if not move_flag and depth_flag:
-			#print "test"
 			piece_jumps.append((Board(self), cp.deepcopy(move)))
 			return
-		#print "jumps", len(piece_jumps)
 
 		return piece_jumps
 
@@ -234,8 +230,6 @@ class Board(object):
 					move_board.__grid[result[1]][result[2]] *= 2
 				piece_moves.append((move_board, new_move))
 
-
-				#move_board.printBoard()
 
 		return piece_moves
 
