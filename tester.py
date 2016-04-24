@@ -58,6 +58,11 @@ class BoardTestCase(ut.TestCase):
 			self.assertEqual(board, self.board.applyMove(move), \
 				'move_board does not match move applied to self.board')
 
+		self.board = Board(new_grid = NEW_KING)
+		for board, move in self.board.getMoveList(BLACK) + self.board.getMoveList(RED):
+			self.assertEqual(board, self.board.applyMove(move), \
+				'move_board does not match move applied to self.board')			
+
 	def testVerifyMove(self):
 		'''
 		For board verify that a move is valid and in the set of moves

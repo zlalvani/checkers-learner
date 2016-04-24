@@ -159,8 +159,7 @@ class Board(object):
 			elif multiple == 2:
 				if res1 is not None and res2 is not None \
 				and np.sign(res1[0]) == -color \
-				and res2[0] == EMPTY \
-				and new_king == False:
+				and res2[0] == EMPTY:
 					move_board = Board(self)
 					
 					move_board.__grid[res2[1]][res2[2]] = move_board.__grid[row][col]
