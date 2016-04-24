@@ -53,7 +53,10 @@ class BoardTestCase(ut.TestCase):
 		self.assertTrue(any(bd[0] == test_board for bd in self.board.getMoveList(RED)))
 
 
-
+	def testApplyMove(self):
+		for board, move in self.board.getMoveList(BLACK) + self.board.getMoveList(RED):
+			self.assertEqual(board, self.board.applyMove(move), \
+				'move_board does not match move applied to self.board')
 
 	def testVerifyMove(self):
 		'''
@@ -109,12 +112,12 @@ class MoveTestCase(ut.TestCase):
 
 		new_move = self.move.clone()
 
-		print
-		print "Move:"
-		self.move.printMove()
-		print
-		print "New Move:"
-		new_move.printMove()
+		# print
+		# print "Move:"
+		# self.move.printMove()
+		# print
+		# print "New Move:"
+		# new_move.printMove()
 
 		self.assertTrue(self.move == new_move)
 

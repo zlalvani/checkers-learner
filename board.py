@@ -117,6 +117,64 @@ class Board(object):
 			print line
 		print hline
 
+	def applyMove(self, new_move):
+		move_board = Board(self)
+		piece = new_move.piece
+		multiple = new_move.multiple
+		row = piece[0]
+		col = piece[1]
+		color = new_move.color
+
+		assert(multiple in [1, 2])
+		assert(row in range(8) and col in range(8))
+
+		# A move with a king that only goes forward should
+		# also be possible with a regular piece.
+
+		if np.sign(move_board.__grid[row][col]) != color:
+			return None
+
+		king = (move_board.__grid[row][col] == RKING or move_board.__grid[row][col] == BKING)
+
+		dirs = [FORWARD_LEFT, FORWARD_RIGHT, int(king) * BACKWARD_LEFT, int(king) * BACKWARD_RIGHT]
+		dirs = [d for d in dirs if d != 0]
+
+		for d in new_move.getChain():
+			if d not in dirs:
+				return None
+			res1 = move_board.__checkDirection(color, row, col, d, 1)
+			res2 = move_board.__checkDirection(color, row, col, d, 2)
+
+			if multiple == 1:
+				if res1 is not None and res1[0] == EMPTY:
+					val = move_board.__grid[row][col]
+					move_board.__grid[row][col] = EMPTY
+					move_board.__grid[res1[1]][res1[2]] = val
+
+					if (res1[1] == 0 and color == RED) or (res1[1] == 7 and color == BLACK):
+						move_board.__grid[result[1]][result[2]] *= 2
+						#if the move is valid, it should end after a piece is kinged, but we should confirm
+				else: return None
+
+			elif multiple == 2:
+				if res1 is not None and res2 is not None \
+				and np.sign(res1[0]) == -color \
+				and res2[0] == EMPTY \
+				and new_king == False:
+					move_board = Board(self)
+					
+					move_board.__grid[res2[1]][res2[2]] = move_board.__grid[row][col]
+					move_board.__grid[res1[1]][res1[2]] = EMPTY
+					move_board.__grid[row][col] = EMPTY
+					
+					if not king: 
+						if (res2[1] == 0 and color == RED) or (res2[1] == 7 and color == BLACK):
+							move_board.__grid[res2[1]][res2[2]] *= 2
+							#if the move is valid, it should end after a piece is kinged, but we should confirm
+
+				else: return None
+		return move_board
+
 	def __storePieceLocations(self, color):
 		locs = []
 		for row in range(8):
@@ -137,7 +195,7 @@ class Board(object):
 
 	def __getPieceJumps(self, color, row, col, piece_jumps = None, depth_flag = False, move = None, new_king = False):
 
-		#I literally have no idea how this fixed anything but it did:
+		#http://effbot.org/zone/default-values.htm
 		if piece_jumps is None:
 			piece_jumps = []
 

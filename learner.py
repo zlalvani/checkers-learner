@@ -5,16 +5,23 @@ from sklearn.neighbors import BallTree
 from globalconsts import \
     EMPTY, RED, BLACK, BKING, RKING, \
     FORWARD_LEFT, FORWARD_RIGHT, BACKWARD_LEFT, BACKWARD_RIGHT, \
-    AI_COLOR, THRESHOLD, PLAYER_COLOR
+    AI_COLOR, THRESHOLD, PLAYER_COLOR, \
+    LOSE, WIN, CONTINUE
 
 class Learner(object):
 	'''
 	A class that instantiates the feature space for an individual AI,
 	chooses moves, and performs learning
 	'''
-	def __init__(self, data_points = [], current_game = [], threshold = THRESHOLD):
+	def __init__(self, data_points = None, current_game = None, threshold = THRESHOLD):
 		self.state_list = []
 		self.weights_list = []
+
+		if data_points is None:
+			data_points = []
+		if current_game is None:
+			current_game = []
+
 		for state, weights in data_points:
 			assert(len(state) == 32)
 			self.state_list.append(state)
@@ -34,15 +41,24 @@ class Learner(object):
 			self._tree = None
 
 	def getNextMove(self, current_board):
-
 		nn_move = self._getNearestNeighbors(current_board)
 		if nn_move is not None:
-			return nn_move
+			next_move = nn_move
 		else:
-			return self._getMinimax(current_board)
+			next_move = self._getMinimax(current_board)
+		self._current_game.append(next_move)
+		return next_move
 
-	def updateWeights(self):
-		pass
+	def updateWeights(self, current_board):
+
+		status = current_board.checkGameStatus(AI_COLOR)
+
+		assert(status != CONTINUE)
+
+		if status == WIN:
+			pass
+		elif status == LOSE:
+			pass
 
 	def _getMinimax(self, current_board):
 		(bestBoard, bestVal) = minMax2(current_board, 6)
