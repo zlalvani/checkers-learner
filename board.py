@@ -89,7 +89,7 @@ class Board(object):
 		assert(not (self.getMoveList(color) == 0 and self.getMoveList(-color) == 0))
 		if len(self.getMoveList(color)) == 0:
 			return LOSE
-		if len(self.getMoveList(-color) == 0)
+		if len(self.getMoveList(-color)) == 0:
 			return WIN
 		return CONTINUE
 			

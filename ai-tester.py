@@ -8,5 +8,11 @@ from globalconsts import RED, BLACK, AI_COLOR, PLAYER_COLOR, \
 
 
 if __name__ == "__main__":
+
+	game_count = 0
+
 	winner = Learner()
-	pass
+
+	for game in range(game_count):
+		continue
+	

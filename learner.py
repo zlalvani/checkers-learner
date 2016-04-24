@@ -1,4 +1,5 @@
 import numpy as np
+import copy as cp
 from board import Board
 from sklearn.neighbors import BallTree
 from globalconsts import \
@@ -19,40 +20,41 @@ class Learner(object):
 			self.state_list.append(state)
 			self.weights_list.append(weights)
 
-		self.threshold = threshold
+		self._threshold = threshold
+		self._current_game = cp.deepcopy(current_game)
 
-		#self.__featureTransform()
+		#self._featureTransform()
 		self.X = np.array(self.state_list)
 
 		assert(self.X.shape == (len(data_points), 32) or len(data_points) == 0)
 		#Think about different distance metrics. Manhattan or minkowski? P < 1?
 		if len(data_points) > 0:
-			self.__tree = BallTree(self.X, metric='manhattan')
+			self._tree = BallTree(self.X, metric='manhattan')
 		else:
-			self.__tree = None
+			self._tree = None
 
 	def getNextMove(self, current_board):
 
-		nn_move = self.__getNearestNeighbors(current_board)
+		nn_move = self._getNearestNeighbors(current_board)
 		if nn_move is not None:
 			return nn_move
 		else:
-			return self.__getMinimax(current_board)
+			return self._getMinimax(current_board)
 
 	def updateWeights(self):
 		pass
 
-	def __getMinimax(self, current_board):
+	def _getMinimax(self, current_board):
 		(bestBoard, bestVal) = minMax2(current_board, 6)
-		print("bestVal", bestVal)
-		bestBoard[0].printBoard()
+		# print("bestVal", bestVal)
+		# bestBoard[0].printBoard()
 		return bestBoard
 
-	def __getNearestNeighbors(self, current_board):
-		#dist, ind = self.__tree.query(current_board.getArray(), k=3)
-		if self.__tree is None:
+	def _getNearestNeighbors(self, current_board):
+		#dist, ind = self._tree.query(current_board.getArray(), k=3)
+		if self._tree is None:
 			return None
-		ind = self.__tree.query_radius(current_board.getArray(), r = self.threshold).tolist()
+		ind = self._tree.query_radius(current_board.getArray(), r = self._threshold).tolist()
 
 		#cur_moves = current_board.getMoveList(AI_COLOR)
 		moves = []
@@ -72,7 +74,7 @@ class Learner(object):
 		#neighbor_moves = [move for move in neighbor_moves if move in cur_moves]
 
 
-	def __featureTransform(self):
+	def _featureTransform(self):
 		#replace weights with a Gaussian at some point
 		#or come up with a better feature transform
 		weights = [1, 2, 3, 4, 4, 3, 2, 1]
@@ -130,7 +132,7 @@ def maxMinBoard(board, currentDepth, bestMove):
         # Create the iterator for the Moves
         board_moves = board.getMoveList(AI_COLOR)
         for board_move in board_moves:
-            board_move[0].printBoard()
+            # board_move[0].printBoard()
             value = minMove2(board_move[0], currentDepth-1)[1]
             if value > best_move_value:
                 best_move_value = value
@@ -146,7 +148,7 @@ def maxMinBoard(board, currentDepth, bestMove):
                 best_move_value = value
                 best_board = board_move
 
-	best_board[0].printBoard()
+	# best_board[0].printBoard()
     # Things appear to be fine, we should have a board with a good value to move to
     return (best_board, best_move_value)
 
