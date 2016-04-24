@@ -79,13 +79,13 @@ class LearnerTestCase(ut.TestCase):
 
 
 	def testNearestNeighbor(self):
-		pass
-		# weights = [0] * len(self.board.getMoveList(AI_COLOR))
-		# weights[0] = 1
-		# self.learner = Learner(data_points = [(self.board.getArray().tolist(), weights)])
-		#
-		# self.assertEqual(self.learner.getNextMove(self.board), self.board.getMoveList(AI_COLOR)[0], \
-		# 		'predicted best move does not match')
+		
+		weights = [0] * len(self.board.getMoveList(AI_COLOR))
+		weights[0] = 1
+		self.learner = Learner(data_points = [(self.board.getArray().tolist(), weights)])
+		
+		self.assertEqual(self.learner.getNextMove(self.board), self.board.getMoveList(AI_COLOR)[0], \
+				'predicted best move does not match')
 
 
 class MoveTestCase(ut.TestCase):
