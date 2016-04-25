@@ -9,7 +9,7 @@ from globalconsts import RED, BLACK, AI_COLOR, PLAYER_COLOR, \
 
 if __name__ == "__main__":
 
-	game_count = 0
+	game_count = 50
 
 	winner = Learner()
 

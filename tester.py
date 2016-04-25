@@ -74,6 +74,10 @@ class BoardTestCase(ut.TestCase):
 		self.assertTrue(self.board.verifyMove(BLACK, next_board = Board(new_grid = START_MOVE_B_9_13)))
 		self.assertTrue(self.board.verifyMove(RED, next_board = Board(new_grid = START_MOVE_R_21_17)))
 
+	def testGetInverse(self):
+		self.assertEqual(self.board.getInverse().getInverse(), self.board, \
+			'inverse of inverse of board is not original board')
+
 
 class LearnerTestCase(ut.TestCase):
 	def setUp(self):
@@ -128,25 +132,37 @@ class MoveTestCase(ut.TestCase):
 
 if __name__ == "__main__":
 
+	# -- Board
 
-	getMovesTestCase = BoardTestCase('testGetMovesList')
-	verifyMoveTestCase = BoardTestCase('testVerifyMove')
+	# getMovesTestCase = BoardTestCase('testGetMovesList')
+	# verifyMoveTestCase = BoardTestCase('testVerifyMove')
+	# applyMoveTestCase = BoardTestCase('testApplyMove')
+	# getInverseTestCase = BoardTestCase('testGetInverse')
 
-	boardTestSuite = ut.TestSuite()
-	boardTestSuite.addTest(getMovesTestCase)
-	boardTestSuite.addTest(verifyMoveTestCase)
+	# boardTestSuite = ut.TestSuite()
+	# boardTestSuite.addTest(getMovesTestCase)
+	# boardTestSuite.addTest(verifyMoveTestCase)
+	# boardTestSuite.addTest(applyMoveTestCase)
 
-	getMinimaxTestCase = LearnerTestCase('testMinimax')
-	getNearestNeighborTestCase = LearnerTestCase('testNearestNeighbor')
+	# # -- Learner
 
-	learnerTestSuite = ut.TestSuite()
-	learnerTestSuite.addTest(getMinimaxTestCase)
-	learnerTestSuite.addTest(getNearestNeighborTestCase)
+	# getMinimaxTestCase = LearnerTestCase('testMinimax')
+	# getNearestNeighborTestCase = LearnerTestCase('testNearestNeighbor')
 
-	moveTestSuite = ut.TestSuite()
+	# learnerTestSuite = ut.TestSuite()
+	# learnerTestSuite.addTest(getMinimaxTestCase)
+	# learnerTestSuite.addTest(getNearestNeighborTestCase)
 
+	# # -- Move
 
-	alltests = ut.TestSuite([boardTestSuite, learnerTestSuite])
+	# cloneTestCase = MoveTestCase('testClone')
+
+	# moveTestSuite = ut.TestSuite()
+	# moveTestSuite.addTest(cloneTestCase)
+
+	# # --
+
+	# alltests = ut.TestSuite([boardTestSuite, learnerTestSuite, moveTestSuite])
 
 	ut.main()
 

@@ -9,10 +9,10 @@ from globalconsts import \
     LOSE, WIN, CONTINUE
 
 class Learner(object):
-	'''
+	"""
 	A class that instantiates the feature space for an individual AI,
 	chooses moves, and performs learning
-	'''
+	"""
 	def __init__(self, data_points = None, current_game = None, threshold = THRESHOLD):
 		self.state_list = []
 		self.weights_list = []
@@ -49,7 +49,7 @@ class Learner(object):
 		self._current_game.append(next_move)
 		return next_move
 
-	def updateWeights(self, current_board):
+	def updateWeights(self, current_board, ai_history, player_history):
 
 		status = current_board.checkGameStatus(AI_COLOR)
 
@@ -59,6 +59,9 @@ class Learner(object):
 			pass
 		elif status == LOSE:
 			pass
+
+	def getCurrentGame(self):
+		return cp.deepcopy(self._current_game)
 
 	def _getMinimax(self, current_board):
 		(bestBoard, bestVal) = minMax2(current_board, 6)
