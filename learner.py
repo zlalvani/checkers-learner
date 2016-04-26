@@ -6,21 +6,22 @@ from globalconsts import \
     EMPTY, RED, BLACK, BKING, RKING, \
     FORWARD_LEFT, FORWARD_RIGHT, BACKWARD_LEFT, BACKWARD_RIGHT, \
     AI_COLOR, THRESHOLD, PLAYER_COLOR, \
-    LOSE, WIN, CONTINUE
+    LOSE, WIN, CONTINUE, \
+    WIN_FACTOR, LOSE_FACTOR
 
 class Learner(object):
 	"""
 	A class that instantiates the feature space for an individual AI,
 	chooses moves, and performs learning
 	"""
-	def __init__(self, data_points = None, current_game = None, threshold = THRESHOLD):
+	def __init__(self, data_points = None, ai_history = None, threshold = THRESHOLD):
 		self.state_list = []
 		self.weights_list = []
 
 		if data_points is None:
 			data_points = []
-		if current_game is None:
-			current_game = []
+		if ai_history is None:
+			ai_history = []
 
 		for state, weights in data_points:
 			assert(len(state) == 32)
@@ -28,7 +29,7 @@ class Learner(object):
 			self.weights_list.append(weights)
 
 		self._threshold = threshold
-		self._current_game = cp.deepcopy(current_game)
+		self._ai_history = cp.deepcopy(ai_history)
 
 		#self._featureTransform()
 		self.X = np.array(self.state_list)
@@ -46,22 +47,69 @@ class Learner(object):
 			next_move = nn_move
 		else:
 			next_move = self._getMinimax(current_board)
-		self._current_game.append(next_move)
+		self._ai_history.append(next_move)
 		return next_move
 
-	def updateWeights(self, current_board, ai_history, player_history):
+	def updateWeights(self, current_board, player_history = None, ai_history = None):
 
 		status = current_board.checkGameStatus(AI_COLOR)
 
+		if ai_history is None:
+			ai_history = self._ai_history
+
 		assert(status != CONTINUE)
 
-		if status == WIN:
-			pass
-		elif status == LOSE:
-			pass
+		game_board = Board() #every game starts with the starting board
 
-	def getCurrentGame(self):
-		return cp.deepcopy(self._current_game)
+		if status == WIN:
+			factor = WIN_FACTOR
+		elif status == LOSE:
+			factor = LOSE_FACTOR
+			# assuming ai_history begins with the first move made
+		for move in enumerate(ai_history):
+
+			# get the possible moves from this board in a list
+			game_moves = game_board.getMoveList(AI_COLOR)
+
+			# get the new board after the recorded move is made
+			#new_board = game_board.applyMove(move)
+
+			# j is the index of the taken move in the list of possible moves
+			for j, (s_board, s_move) in enumerate(game_moves):
+				# if s_board == new_board:
+				if s_move == move:
+					break				
+
+
+			state = game_board.getArray().tolist()
+			if state in self.state_list:
+				# i is the index of the move state in the learner's state_list
+				for i, s_state in enumerate(self.state_list):
+					if len(set(state).intersection(s_state)) == len(state):
+						break
+				self.weights_list[i][j] *= factor
+				
+			else:
+				self.state_list.append(state)
+				weights = [1] * len(game_moves)
+
+				weights[j] *= factor 
+
+				self.weights_list.append(weights)
+				
+			#game_board becomes the result of the current move
+			game_board = game_board.applyMove(move)
+
+		# if there's a player history, we'll update the weights in a similar fashion, 
+		# with an inverted boards
+		if player_history is None:
+			return
+		else:
+			self.updateWeights(Board(new_array = current_board.getArray()), ai_history = player_history)
+
+
+	def getAiHistory(self):
+		return cp.deepcopy(self._ai_history)
 
 	def _getMinimax(self, current_board):
 		(bestBoard, bestVal) = minMax2(current_board, 6)
