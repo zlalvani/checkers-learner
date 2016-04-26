@@ -1,12 +1,13 @@
 import numpy as np
 import copy as cp
+import random
 from board import Board
 from sklearn.neighbors import BallTree
 from globalconsts import \
     EMPTY, RED, BLACK, BKING, RKING, \
     FORWARD_LEFT, FORWARD_RIGHT, BACKWARD_LEFT, BACKWARD_RIGHT, \
     AI_COLOR, THRESHOLD, PLAYER_COLOR, \
-    LOSE, WIN, CONTINUE, \
+    LOSE, WIN, CONTINUE, TIE, \
     WIN_FACTOR, LOSE_FACTOR
 
 class Learner(object):
@@ -50,9 +51,9 @@ class Learner(object):
 		self._ai_history.append(next_move)
 		return next_move
 
-	def updateWeights(self, current_board, player_history = None, ai_history = None):
-
-		status = current_board.checkGameStatus(AI_COLOR)
+	def updateWeights(self, current_board, player_history = None, ai_history = None, status = None):
+		if status is None:
+			status = current_board.checkGameStatus(AI_COLOR)
 
 		if ai_history is None:
 			ai_history = self._ai_history
@@ -65,6 +66,8 @@ class Learner(object):
 			factor = WIN_FACTOR
 		elif status == LOSE:
 			factor = LOSE_FACTOR
+		elif status == TIE:
+			factor = 1
 			# assuming ai_history begins with the first move made
 		for move in ai_history:
 
@@ -99,26 +102,29 @@ class Learner(object):
 
 		# if there's a player history, we'll update the weights in a similar fashion, 
 		# with an inverted starting board, assuming the player_moves are already inverted
-		if player_history is None:
-			return
-		else:
+		if player_history is not None:
 			self.updateWeights(Board(new_array = current_board.getInverse().getArray()), ai_history = player_history)
-
+		self.X = np.array(state_list)
+		self._tree = BallTree(self.X, metric='manhattan')
 
 	def getAiHistory(self):
 		return cp.deepcopy(self._ai_history)
 
 	def _getMinimax(self, current_board):
+		# return random.choice([bd[1] for bd in current_board.getMoveList(AI_COLOR)])
 		(bestBoard, bestVal) = minMax2(current_board, 6)
 		# print("bestVal", bestVal)
 		# bestBoard[0].printBoard()
-		return bestBoard[0]
+		return bestBoard[1]
 
 	def _getNearestNeighbors(self, current_board):
 		#dist, ind = self._tree.query(current_board.getArray(), k=3)
 		if self._tree is None:
 			return None
 		ind = self._tree.query_radius(current_board.getArray(), r = self._threshold).tolist()
+
+		if len(ind > 0):
+			print "neighbors found"
 
 		#cur_moves = current_board.getMoveList(AI_COLOR)
 		moves = []

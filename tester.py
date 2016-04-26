@@ -93,7 +93,7 @@ class LearnerTestCase(ut.TestCase):
 		# print(self.learner.getNextMove(self.board))
 
 		# self.board= Board(new_grid = START)
-		self.board= Board(new_grid = RED_EASY_LOOKAHEAD_2)
+		self.board = Board(new_grid = RED_EASY_LOOKAHEAD_2)
 		best = self.learner.getNextMove(self.board)
 
 
@@ -103,7 +103,10 @@ class LearnerTestCase(ut.TestCase):
 		weights[0] = 1
 		self.learner = Learner(data_points = [(self.board.getArray().tolist(), weights)])
 		
-		self.assertEqual(self.learner.getNextMove(self.board), self.board.getMoveList(AI_COLOR)[0], \
+		# self.board.getMoveList(AI_COLOR)[0][1].printMove()
+		# self.learner.getNextMove(self.board).printBoard()
+
+		self.assertEqual(self.learner.getNextMove(self.board), self.board.getMoveList(AI_COLOR)[0][1], \
 				'predicted best move does not match')
 
 	def testUpdateWeights(self):

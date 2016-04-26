@@ -5,7 +5,7 @@ from learner import Learner
 from move import Move
 from globalconsts import RED, BLACK, AI_COLOR, PLAYER_COLOR, \
 	FORWARD_LEFT, FORWARD_RIGHT, BACKWARD_LEFT, BACKWARD_RIGHT, \
-	WIN, CONTINUE, LOSE
+	WIN, CONTINUE, LOSE, TIE
 
 
 if __name__ == "__main__":
@@ -38,11 +38,16 @@ if __name__ == "__main__":
 
 			loser_moves.append(loser_move.getInverse())
 
-			loser_move.printMove()
-			loser_move.getInverse().printMove()
+			# loser_move.printMove()
+			# loser_move.getInverse().printMove()
 
+			# game_board.printBoard()
+			game_board = game_board.applyMove(loser_move.getInverse())
+
+
+			print turn_count
 			game_board.printBoard()
-			game_board = game_board.applyMove(loser_move)
+
 
 			if game_board.checkGameStatus(AI_COLOR) == LOSE:
 				break
@@ -52,11 +57,17 @@ if __name__ == "__main__":
 			winner_moves.append(winner_move)
 
 			game_board = game_board.applyMove(winner_move)
-
+			game_board.printBoard()
 			turn_count += 1
+
+
 			
 		if not tie_flag:
 			winner.updateWeights(game_board, loser_moves, winner_moves)
-		
+		else:
+			game_board.printBoard()
+			winner.updateWeights(game_board, loser_moves, winner_moves, status = TIE)
+		loser_moves = None
+		winner_moves = None
 		print game
 	

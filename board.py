@@ -4,7 +4,7 @@ from move import Move
 from globalconsts import \
 	EMPTY, RED, BLACK, BKING, RKING, \
 	FORWARD_LEFT, FORWARD_RIGHT, BACKWARD_LEFT, BACKWARD_RIGHT, \
-	WIN, CONTINUE, LOSE
+	WIN, CONTINUE, LOSE, TIE
 
 #http://www.learnpython.org/en/Multiple_Function_Arguments
 
@@ -110,6 +110,8 @@ class Board(object):
 		for row in grid:
 			line = '. '
 			for piece in row:
+				if piece not in [RED, BLACK, RKING, BKING, EMPTY]:
+					print piece
 				line += piece_dic[piece] + ' '
 			line += '.'
 			print line
@@ -148,9 +150,12 @@ class Board(object):
 					val = move_board.__grid[row][col]
 					move_board.__grid[row][col] = EMPTY
 					move_board.__grid[res1[1]][res1[2]] = val
-
-					if (res1[1] == 0 and color == RED) or (res1[1] == 7 and color == BLACK):
-						move_board.__grid[result[1]][result[2]] *= 2
+					if not king:
+						if (res1[1] == 0 and color == RED) or (res1[1] == 7 and color == BLACK):
+							move_board.__grid[res1[1]][res1[2]] *= 2
+							if self.__grid[row][col] not in [RED, BLACK]:
+								print self.__grid[row][col]
+								raise Exception()
 						#if the move is valid, it should end after a piece is kinged, but we should confirm
 				else: return None
 
@@ -167,6 +172,9 @@ class Board(object):
 					if not king: 
 						if (res2[1] == 0 and color == RED) or (res2[1] == 7 and color == BLACK):
 							move_board.__grid[res2[1]][res2[2]] *= 2
+							if self.__grid[row][col] not in [RED, BLACK]:
+								print self.__grid[row][col]
+								raise Exception()
 							#if the move is valid, it should end after a piece is kinged, but we should confirm
 
 				else: return None
@@ -225,6 +233,9 @@ class Board(object):
 				if not king: 
 					if (res2[1] == 0 and color == RED) or (res2[1] == 7 and color == BLACK):
 						move_board.__grid[res2[1]][res2[2]] *= 2
+						if self.__grid[row][col] not in [RED, BLACK]:
+							print self.__grid[row][col]
+							raise Exception()
 						king_flag = True
 				# else:
 				# 	king_flag = False
@@ -281,8 +292,13 @@ class Board(object):
 				move_board.__grid[row][col] = EMPTY
 				move_board.__grid[result[1]][result[2]] = val
 				new_move = Move((row, col, color), d, multiple = 1)
-				if (result[1] == 0 and color == RED) or (result[1] == 7 and color == BLACK):
-					move_board.__grid[result[1]][result[2]] *= 2
+				if not king: 
+					if (result[1] == 0 and color == RED) or (result[1] == 7 and color == BLACK):
+						move_board.__grid[result[1]][result[2]] *= 2
+						if self.__grid[row][col] not in [RED, BLACK]:
+							print self.__grid[row][col]
+							raise Exception()
+
 				piece_moves.append((move_board, new_move))
 
 

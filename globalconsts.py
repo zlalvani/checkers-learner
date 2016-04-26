@@ -22,5 +22,6 @@ LOSE_FACTOR = .5
 
 #Game status signifiers
 WIN = 1
-CONTINUE = 0
+TIE = 0
 LOSE = -1
+CONTINUE = 2
