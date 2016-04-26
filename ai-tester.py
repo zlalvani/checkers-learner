@@ -38,6 +38,10 @@ if __name__ == "__main__":
 
 			loser_moves.append(loser_move.getInverse())
 
+			loser_move.printMove()
+			loser_move.getInverse().printMove()
+
+			game_board.printBoard()
 			game_board = game_board.applyMove(loser_move)
 
 			if game_board.checkGameStatus(AI_COLOR) == LOSE:

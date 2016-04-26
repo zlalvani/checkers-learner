@@ -112,7 +112,7 @@ class Learner(object):
 		(bestBoard, bestVal) = minMax2(current_board, 6)
 		# print("bestVal", bestVal)
 		# bestBoard[0].printBoard()
-		return bestBoard
+		return bestBoard[0]
 
 	def _getNearestNeighbors(self, current_board):
 		#dist, ind = self._tree.query(current_board.getArray(), k=3)
