@@ -35,6 +35,12 @@ class Move(object):
 		new_move._chain = self.getChain()
 		return new_move
 
+	def getInverse(self):
+		new_piece = (7 - self.piece[0], 7 - self.piece[1], -color)
+		new_move = Move(piece = new_piece, multiple = self.multiple)
+		new_move._chain = self.getChain()
+		return new_move
+
 	def printMove(self):
 		piece_dic = {
 			RED : 'RED',

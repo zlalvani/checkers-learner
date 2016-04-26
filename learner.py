@@ -66,13 +66,10 @@ class Learner(object):
 		elif status == LOSE:
 			factor = LOSE_FACTOR
 			# assuming ai_history begins with the first move made
-		for move in enumerate(ai_history):
+		for move in ai_history:
 
 			# get the possible moves from this board in a list
 			game_moves = game_board.getMoveList(AI_COLOR)
-
-			# get the new board after the recorded move is made
-			#new_board = game_board.applyMove(move)
 
 			# j is the index of the taken move in the list of possible moves
 			for j, (s_board, s_move) in enumerate(game_moves):
@@ -101,11 +98,11 @@ class Learner(object):
 			game_board = game_board.applyMove(move)
 
 		# if there's a player history, we'll update the weights in a similar fashion, 
-		# with an inverted boards
+		# with an inverted starting board, assuming the player_moves are already inverted
 		if player_history is None:
 			return
 		else:
-			self.updateWeights(Board(new_array = current_board.getArray()), ai_history = player_history)
+			self.updateWeights(Board(new_array = current_board.getInverse().getArray()), ai_history = player_history)
 
 
 	def getAiHistory(self):

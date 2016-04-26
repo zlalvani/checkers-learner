@@ -106,6 +106,25 @@ class LearnerTestCase(ut.TestCase):
 		self.assertEqual(self.learner.getNextMove(self.board), self.board.getMoveList(AI_COLOR)[0], \
 				'predicted best move does not match')
 
+	def testUpdateWeights(self):
+		pass
+
+		# To test this we need a history of moves for an entire game...
+
+		# self.board = Board(new_grid = WIN_LOSE)
+
+
+		# ai_win_moves = []
+		# ai_win_moves.append(self.board.getMoveList(AI_COLOR)[0][1])
+		# self.board = self.board.applyMove(ai_win_moves[-1])
+		# ai_win_moves.append(self.board.getMoveList(AI_COLOR)[0][1])
+		# for board, move in self.board.getMoveList(AI_COLOR):
+		# 	board.printBoard()
+		# 	move.printMove()
+
+
+		# self.learner.updateWeights(self.board.getMoveList(AI_COLOR)[0][0], ai_history = ai_win_moves)
+
 
 class MoveTestCase(ut.TestCase):
 	def setUp(self):

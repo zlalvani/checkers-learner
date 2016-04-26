@@ -29,8 +29,8 @@ class Board(object):
 		self.weight = weight #figure out a way to associate a weight with each possible move
 
 		#RED should be AI, black should be opponent
-		self.__moves = {RED : [], BLACK : []}
-		self.__pieces = {RED : set([]), BLACK : set([])}
+		self.__moves = {RED : None, BLACK : None}
+		self.__pieces = {RED : None, BLACK : None}
 
 	def __eq__(self, other):
 		'''
@@ -69,9 +69,8 @@ class Board(object):
 		else:
 			return False
 
-
 	def getMoveList(self, color):
-		if len(self.__moves[color]) > 0:
+		if self.__moves[color] is not None:
 			return cp.deepcopy(self.__moves[color])
 		else:
 			self.__moves[color] = self.__checkForMoves(color)
@@ -79,7 +78,7 @@ class Board(object):
 
 	def getPieces(self, color):
 		#look into named tuples for pieces
-		if len(self.__pieces[color]) > 0:
+		if self.__pieces[color] is not None:
 			return cp.deepcopy(self.__pieces[color])
 		else:
 			self.__pieces[color] = self.__storePieceLocations(color)
@@ -92,7 +91,6 @@ class Board(object):
 		if len(self.getMoveList(-color)) == 0:
 			return WIN
 		return CONTINUE
-			
 
 	def getInverse(self):
 		return Board(new_array = np.array([-p for p in (self.getArray().tolist())[::-1]]))
