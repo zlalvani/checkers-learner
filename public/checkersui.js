@@ -17,22 +17,23 @@ var CheckersUI = (function(){
     canvas.addEventListener('mousemove', mouseMove);
     canvas.addEventListener('mouseup', endMove);
     setInterval(onTick, 1000/30);
-    checkers = [];
-    for (var i = 0;i < 12; i++){
-      checkers.push({
-        x: (i*2)% 8 + (Math.floor(1+i/4)%2),
-        y: Math.floor(i/4),
-        king :false,
-        team: 0
-      });
-      checkers.push({
-        x: (i*2)%8 + (Math.floor(i/4)%2),
-        y: 7 - Math.floor(i/4),
-        king :false,
-        team:1
-      });
-    }
-    redraw();
+    getBoardState();
+    // checkers = [];
+    // for (var i = 0;i < 12; i++){
+    //   checkers.push({
+    //     x: (i*2)% 8 + (Math.floor(1+i/4)%2),
+    //     y: Math.floor(i/4),
+    //     king :false,
+    //     team: 0
+    //   });
+    //   checkers.push({
+    //     x: (i*2)%8 + (Math.floor(i/4)%2),
+    //     y: 7 - Math.floor(i/4),
+    //     king :false,
+    //     team:1
+    //   });
+    // }
+    // redraw();
   }
 
   function redraw(){
@@ -144,6 +145,13 @@ var CheckersUI = (function(){
     return ar;
   }
 
+  function convertToPieceFmt(checkerPiece, xCoor, yCoor){
+    var index = Math.floor(xCoor/2)*2 + Math.floor(yCoor) * 4;
+    var value = (checkerPiece.team * 2 - 1) * (checkerPiece.king ? 2 : 1);
+    return {value: value, index: index}
+  }
+
+
   function convertFromBoardFmt(boardArray){
     checkers = [];
     for (var i = 0;i < boardArray.length; i++){
@@ -165,7 +173,10 @@ var CheckersUI = (function(){
       var mc = checkers[grabbing];
       mc.x = Math.round(mouse.x/sqsz - .5);
       mc.y = Math.round(mouse.y/sqsz - .5);
-      self.validate(convertToBoardFmt(), (valid)=>{
+      console.log(mc);
+      var movePiece = convertToPieceFmt(mc, mc.oldx, mc.oldy);
+      var movePositions = [convertToPieceFmt(mc, mc.x, mc.y)];
+      self.validate(convertToBoardFmt(), movePiece, movePositions, (valid)=>{
         if(!valid){
           mc.x = mc.oldx;
           mc.y = mc.oldy;
@@ -178,6 +189,20 @@ var CheckersUI = (function(){
 
   function getBoard(){
     return convertToBoardFmt();
+  }
+
+  function getBoardState(){
+    $.ajax({
+        url: 'http://localhost:8080/api/getBoard',
+        type: 'GET',
+        success: function (data) {
+            convertFromBoardFmt(data.board)
+            redraw();
+        },
+        error: function (xhr, status, error) {
+            console.log('Error: ' + error.message);
+        },
+    });
   }
 
   function load(board){
@@ -199,12 +224,12 @@ var CheckersUI = (function(){
     redraw();
   }
 
-  function validate(board, cb){
+  function validate(board, movePiece, movePositions, cb){
     console.log(board);
     console.log("hit");
     $.ajax({
         url: 'http://localhost:8080/api/verify',
-        data: {data: board},
+        data: {board: board, movePiece: movePiece, movePositions: movePositions},
         type: 'POST',
         success: function (data) {
           console.log(data);
@@ -242,6 +267,7 @@ var CheckersUI = (function(){
     init: init,
     load: load,
     getBoard: getBoard,
+    getBoardState: getBoardState,
     validate: validate,
     AIMove: AIMove
   };

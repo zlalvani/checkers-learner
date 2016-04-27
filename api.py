@@ -38,20 +38,31 @@ def get_board():
     except:
         current_board = Board()
         pickle.dump(current_board, open("current_board.pkl", "wb"))
-    return json.dumps(current_board.getArray())
+    return json.dumps(current_board.getArray().tolist())
 
 @app.route('/verify', methods=['POST'])
 def verify_move():
     content = request.json
-    boardArray = [int(str(element)) for element in content['data']]
+    print(content)
+    boardArray = [int(str(element)) for element in content['board']]
+    movePiece = (int(str(content['movePiece']['index'])), int(str(content['movePiece']['value'])))
+    movePositions = [(int(str(element['index'])), int(str(element['value']))) for element in content['movePositions']]
+    print("move Piece", movePiece)
+    print("move Positions", movePositions)
 
-    # try:
-    #     current_board = pickle.load(open("current_board.pkl", "rb"))
-    # except:
-    current_board = Board()
-    pickle.dump(current_board, open("current_board.pkl", "wb"))
+    try:
+        current_board = pickle.load(open("current_board.pkl", "rb"))
+    except:
+        current_board = Board()
+        pickle.dump(current_board, open("current_board.pkl", "wb"))
 
-    verified = current_board.verifyMove(RED, next_board = Board(new_array = boardArray))
+    next_board = Board(new_array = boardArray)
+
+    # Make it work for moves instead of board
+    # next_board = current_board.(next_board)
+
+
+    verified = current_board.verifyMove(RED, next_board = next_board)
     if(verified):
         pickle.dump(Board(new_array = boardArray), open("current_board.pkl", "wb"))
 
