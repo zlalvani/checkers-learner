@@ -44,6 +44,7 @@ if __name__ == "__main__":
 			# game_board.printBoard()
 			game_board = game_board.applyMove(loser_move.getInverse())
 
+			loser_move.getInverse().printMove()
 
 			print turn_count
 			game_board.printBoard()
@@ -53,6 +54,8 @@ if __name__ == "__main__":
 				break
 
 			winner_move = winner.getNextMove(game_board)
+
+			winner_move.printMove()
 
 			winner_moves.append(winner_move)
 

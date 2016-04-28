@@ -18,7 +18,7 @@ THRESHOLD = 10
 
 #Factors to scale weights by on a win or loss. These should be reciprocals. 
 WIN_FACTOR = 2
-LOSE_FACTOR = .5 
+LOSE_FACTOR = 1.0 / WIN_FACTOR 
 
 #Game status signifiers
 WIN = 1

@@ -62,7 +62,7 @@ class Board(object):
 				return self.verifyMove(color, next_board = next_board)
 		elif move is not None:
 			if len(self.__moves[color]):
-				return any(next_board == bd[1] for bd in self.__moves[color])
+				return any(move == bd[1] for bd in self.__moves[color])
 			else:
 				self.getMoveList(color)
 				return self.verifyMove(color, move = move)
@@ -157,6 +157,8 @@ class Board(object):
 								print self.__grid[row][col]
 								raise Exception()
 						#if the move is valid, it should end after a piece is kinged, but we should confirm
+					row = res1[1]
+					col = res1[2]
 				else: return None
 
 			elif multiple == 2:
@@ -177,7 +179,15 @@ class Board(object):
 								raise Exception()
 							#if the move is valid, it should end after a piece is kinged, but we should confirm
 
-				else: return None
+					row = res2[1]
+					col = res2[2]
+
+				else:
+					self.printBoard()
+					new_move.printMove()
+					raise Exception() 
+					return None
+
 		return move_board
 
 	def __storePieceLocations(self, color):

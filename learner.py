@@ -51,9 +51,9 @@ class Learner(object):
 		self._ai_history.append(next_move)
 		return next_move
 
-	def updateWeights(self, current_board, player_history = None, ai_history = None, status = None):
+	def updateWeights(self, end_board, player_history, ai_history = None, status = None, ai_first = False):
 		if status is None:
-			status = current_board.checkGameStatus(AI_COLOR)
+			status = end_board.checkGameStatus(AI_COLOR)
 
 		if ai_history is None:
 			ai_history = self._ai_history
@@ -69,9 +69,14 @@ class Learner(object):
 		elif status == TIE:
 			factor = 1
 			# assuming ai_history begins with the first move made
-		for move in ai_history:
+		for k, move in enumerate(ai_history):
+
+			if not ai_first:
+				# print "ai first false"
+				game_board = game_board.applyMove(player_history[k])
 
 			# get the possible moves from this board in a list
+
 			game_moves = game_board.getMoveList(AI_COLOR)
 
 			# j is the index of the taken move in the list of possible moves
@@ -82,14 +87,18 @@ class Learner(object):
 
 
 			state = game_board.getArray().tolist()
-			if state in self.state_list:
+			# print state
+			state_flag = False
+			# if state in self.state_list:
 				# i is the index of the move state in the learner's state_list
-				for i, s_state in enumerate(self.state_list):
-					if len(set(state).intersection(s_state)) == len(state):
-						break
-				self.weights_list[i][j] *= factor
+			for i, s_state in enumerate(self.state_list):
+				if len([a for a, b in zip(state, s_state) if a == b]) == len(state):
+					#print i, j, len(self.weights_list[i]) - 1
+					self.weights_list[i][j] *= factor
+					state_flag = True
+					break
 				
-			else:
+			if not state_flag:
 				self.state_list.append(state)
 				weights = [1] * len(game_moves)
 
@@ -98,13 +107,22 @@ class Learner(object):
 				self.weights_list.append(weights)
 				
 			#game_board becomes the result of the current move
+			test_board = game_board.applyMove(move)
+			if test_board is None:
+				game_board.printBoard()
+				move.printMove()
+				raise Exception()
 			game_board = game_board.applyMove(move)
+
+			if ai_first and k < len(player_history):
+				# print "player move applied"
+				game_board = game_board.applyMove(player_history[k])
 
 		# if there's a player history, we'll update the weights in a similar fashion, 
 		# with an inverted starting board, assuming the player_moves are already inverted
-		if player_history is not None:
-			self.updateWeights(Board(new_array = current_board.getInverse().getArray()), ai_history = player_history)
-		self.X = np.array(state_list)
+		# if player_history is not None:
+		# 	self.updateWeights(Board(end_board.getInverse()), status = status, ai_history = player_history, player_history = ai_history, ai_first = not ai_first)
+		self.X = np.array(self.state_list)
 		self._tree = BallTree(self.X, metric='manhattan')
 
 	def getAiHistory(self):
@@ -122,25 +140,32 @@ class Learner(object):
 		if self._tree is None:
 			return None
 		ind = self._tree.query_radius(current_board.getArray(), r = self._threshold).tolist()
+		ind = ind[0].tolist()
 
-		if len(ind > 0):
+		if len(ind) > 0:
 			print "neighbors found"
 
 		#cur_moves = current_board.getMoveList(AI_COLOR)
 		moves = []
 		weights = []
+		print ind
 		for i in ind:
 			_board = Board(new_array = self.state_list[i])
 			assert(len(_board.getMoveList(AI_COLOR)) == len(self.weights_list[i]))
 			for j, (board, move) in enumerate(_board.getMoveList(AI_COLOR)):
+				# move.printMove()
+				# current_board.printBoard()
 				if current_board.verifyMove(AI_COLOR, move = move):
-					moves += move
-					weights += self.weights_list[i][j]
+					print "move found"
+					moves.append(move)
+					weights.append(self.weights_list[i][j])
 		if len(moves) == 0:
+			# raise Exception()
+			print "aborted neighbors"
 			return None
 		else:
 			assert(len(moves) == len(weights))
-			return np.random.choice(moves, 1, weights)
+			return np.random.choice(moves, 1, weights)[0]
 		#neighbor_moves = [move for move in neighbor_moves if move in cur_moves]
 
 
