@@ -86,6 +86,8 @@ class Board(object):
 
 	def checkGameStatus(self, color):
 		assert(not (self.getMoveList(color) == 0 and self.getMoveList(-color) == 0))
+		if len(self.getMoveList(color)) == 0 and len(self.getMoveList(-color)) == 0:
+			return TIE
 		if len(self.getMoveList(color)) == 0:
 			return LOSE
 		if len(self.getMoveList(-color)) == 0:
@@ -125,6 +127,8 @@ class Board(object):
 		col = piece[1]
 		color = new_move.color
 
+		assert(color in [RED, BLACK])
+
 		assert(multiple in [1, 2])
 		assert(row in range(8) and col in range(8))
 
@@ -139,13 +143,14 @@ class Board(object):
 		dirs = [FORWARD_LEFT, FORWARD_RIGHT, int(king) * BACKWARD_LEFT, int(king) * BACKWARD_RIGHT]
 		dirs = [d for d in dirs if d != 0]
 
-		for d in new_move.getChain():
+		for ind, d in enumerate(new_move.getChain()):
 			if d not in dirs:
 				return None
 			res1 = move_board.__checkDirection(color, row, col, d, 1)
 			res2 = move_board.__checkDirection(color, row, col, d, 2)
 
 			if multiple == 1:
+				assert(len(new_move.getChain()) == 1)
 				if res1 is not None and res1[0] == EMPTY:
 					val = move_board.__grid[row][col]
 					move_board.__grid[row][col] = EMPTY
@@ -157,26 +162,34 @@ class Board(object):
 								print self.__grid[row][col]
 								raise Exception()
 						#if the move is valid, it should end after a piece is kinged, but we should confirm
-					row = res1[1]
-					col = res1[2]
+					# row = res1[1]
+					# col = res1[2]
+
+
 				else: return None
 
 			elif multiple == 2:
 				if res1 is not None and res2 is not None \
 				and np.sign(res1[0]) == -color \
 				and res2[0] == EMPTY:
-					move_board = Board(self)
-					
+					# move_board = Board(self)
+					assert(move_board.__grid[row][col] in [RED, BLACK, RKING, BKING])
 					move_board.__grid[res2[1]][res2[2]] = move_board.__grid[row][col]
+					if move_board.__grid[res2[1]][res2[2]] not in [RED, BLACK, BKING, RKING]:
+						print move_board.__grid[res2[1]][res2[2]]
+						raise Exception()
 					move_board.__grid[res1[1]][res1[2]] = EMPTY
 					move_board.__grid[row][col] = EMPTY
 					
 					if not king: 
 						if (res2[1] == 0 and color == RED) or (res2[1] == 7 and color == BLACK):
-							move_board.__grid[res2[1]][res2[2]] *= 2
-							if self.__grid[row][col] not in [RED, BLACK]:
-								print self.__grid[row][col]
+							if move_board.__grid[res2[1]][res2[2]] not in [RED, BLACK]:
+								print move_board.__grid[res2[1]][res2[1]]
+								new_move.printMove()
 								raise Exception()
+							move_board.__grid[res2[1]][res2[2]] *= 2
+							king = True
+							assert(ind == len(new_move.getChain()) - 1)
 							#if the move is valid, it should end after a piece is kinged, but we should confirm
 
 					row = res2[1]

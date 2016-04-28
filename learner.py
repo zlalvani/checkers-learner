@@ -43,6 +43,7 @@ class Learner(object):
 			self._tree = None
 
 	def getNextMove(self, current_board):
+		# current_board.printBoard()
 		nn_move = self._getNearestNeighbors(current_board)
 		if nn_move is not None:
 			next_move = nn_move
@@ -51,7 +52,7 @@ class Learner(object):
 		self._ai_history.append(next_move)
 		return next_move
 
-	def updateWeights(self, end_board, player_history, ai_history = None, status = None, ai_first = False):
+	def updateWeights(self, end_board, player_history, ai_history = None, status = None, ai_first = False, game_history = None):
 		if status is None:
 			status = end_board.checkGameStatus(AI_COLOR)
 
@@ -70,6 +71,7 @@ class Learner(object):
 			factor = 1
 			# assuming ai_history begins with the first move made
 		for k, move in enumerate(ai_history):
+			assert(game_board in game_history)
 
 			if not ai_first:
 				# print "ai first false"
@@ -118,6 +120,7 @@ class Learner(object):
 				# print "player move applied"
 				game_board = game_board.applyMove(player_history[k])
 
+
 		# if there's a player history, we'll update the weights in a similar fashion, 
 		# with an inverted starting board, assuming the player_moves are already inverted
 		# if player_history is not None:
@@ -157,6 +160,7 @@ class Learner(object):
 				# current_board.printBoard()
 				if current_board.verifyMove(AI_COLOR, move = move):
 					print "move found"
+					move.printMove()
 					if move not in moves:
 						moves.append(move)
 						weights.append(self.weights_list[i][j])
@@ -168,6 +172,10 @@ class Learner(object):
 			return None
 		else:
 			assert(len(moves) == len(weights))
+			zipped = zip(moves, weights)
+			moves = [mv[0] for mv in zipped if mv[1] >= 1]
+			weights = [mv[1] for mv in zipped if mv[1] >= 1]
+
 			return np.random.choice(moves, 1, weights)[0]
 		#neighbor_moves = [move for move in neighbor_moves if move in cur_moves]
 
