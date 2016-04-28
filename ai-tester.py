@@ -26,8 +26,7 @@ if __name__ == "__main__":
 
 		tie_flag = False
 
-		while game_board.checkGameStatus(AI_COLOR) != WIN \
-		and game_board.checkGameStatus(AI_COLOR) != LOSE:
+		while game_board.checkGameStatus(AI_COLOR) == CONTINUE:
 
 			if turn_count > 100:
 				tie_flag = True

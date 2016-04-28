@@ -157,8 +157,11 @@ class Learner(object):
 				# current_board.printBoard()
 				if current_board.verifyMove(AI_COLOR, move = move):
 					print "move found"
-					moves.append(move)
-					weights.append(self.weights_list[i][j])
+					if move not in moves:
+						moves.append(move)
+						weights.append(self.weights_list[i][j])
+					else:
+						weights[moves.index(move)] *= self.weights_list[i][j]
 		if len(moves) == 0:
 			# raise Exception()
 			print "aborted neighbors"

@@ -183,9 +183,9 @@ class Board(object):
 					col = res2[2]
 
 				else:
-					self.printBoard()
-					new_move.printMove()
-					raise Exception() 
+					# self.printBoard()
+					# new_move.printMove()
+					# raise Exception() 
 					return None
 
 		return move_board
