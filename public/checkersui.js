@@ -271,6 +271,8 @@ var CheckersUI = (function(){
       redraw();
       if(bd.verified){
         AIMove();
+        pieceMove = {moves:[]};
+        console.log(pieceMove);
       }
     });
   }
