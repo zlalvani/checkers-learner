@@ -18,6 +18,20 @@ module.exports = function(app, express) {
       res.json({
         board: body
       });
+	  });
+	});
+
+	// route to generate sample user
+	apiRouter.get('/getBoard', function(req, res) {
+    request({
+        uri: "http://127.0.0.1:5000/getBoard",
+        method: "GET",
+				json: req.body,
+        timeout: 10000
+      }, function(error, response, body) {
+      res.json({
+        board: body
+      });
     });
 	});
 
@@ -33,9 +47,7 @@ module.exports = function(app, express) {
         timeout: 10000
       }, function(error, response, body) {
 	      // return the information  as JSON
-				res.json({
-	        works: body
-	      });
+				res.json(body);
 	    });
 		});
 

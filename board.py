@@ -97,6 +97,12 @@ class Board(object):
 	def getInverse(self):
 		return Board(new_array = np.array([-p for p in (self.getArray().tolist())[::-1]]))
 
+    # def checkForJumpedPiece(self, next_board):
+	# 	curr_board = self.getGrid()
+	# 	next_board = next_board.getGrid()
+	# 	for x in range()
+
+
 	def printBoard(self):
 		piece_dic = {
 			RED : 'r',
