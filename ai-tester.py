@@ -178,7 +178,7 @@ def playLoser(winner, game_count):
 		elif game_board.checkGameStatus(AI_COLOR) == LOSE:
 			losses += 1
 
-		return { WIN : wins, LOSE : losses, TIE : ties}
+	return { WIN : wins, LOSE : losses, TIE : ties}
 	
 
 if __name__ == "__main__":
@@ -187,7 +187,7 @@ if __name__ == "__main__":
 
 	winner = Learner()
 
-	trainWithSelf(winner, game_count)
+	trainWithSelf(winner, 100)
 	result = playLoser(winner, game_count)
 	with open('results.txt', 'w+') as f:
 		f.write(str(result[WIN]) + " " + str(result[LOSE]) + " " + str(result[TIE]))

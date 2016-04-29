@@ -14,10 +14,10 @@ BACKWARD_LEFT = 3
 BACKWARD_RIGHT = 4
 
 #threshold of distance to switch between NN and minimax
-THRESHOLD = 10
+THRESHOLD = 5
 
 #Factors to scale weights by on a win or loss. These should be reciprocals. 
-WIN_FACTOR = 2.0
+WIN_FACTOR = 4.0
 LOSE_FACTOR = 1.0 / WIN_FACTOR 
 
 #Game status signifiers
