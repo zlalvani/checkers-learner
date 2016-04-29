@@ -246,6 +246,7 @@ var CheckersUI = (function(){
         url: 'http://localhost:8080/api/getAIMove',
         type: 'GET',
         success: function (data) {
+          console.log(data);
             convertFromBoardFmt(data.board)
             redraw();
         },
@@ -258,15 +259,17 @@ var CheckersUI = (function(){
   function makeMove(){
     pieceMove.moved = false;
     self.validate(convertToBoardFmt(), pieceMove.starting, pieceMove.moves, (bd)=>{
-      if(!bd.valid){
+      console.log(bd.board);
+      if(!bd.verified){
         var mc = pieceMove.checker;
+        console.log(pieceMove.starting);
         mc.x = pieceMove.starting.coor.xCoor;
         mc.y = pieceMove.starting.coor.yCoor
       }
       grabbing = null;
       convertFromBoardFmt(bd.board)
       redraw();
-      if(bd.valid){
+      if(bd.verified){
         AIMove();
       }
     });

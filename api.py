@@ -69,7 +69,7 @@ def verify_move():
     piece = (p_row, p_col, np.sign(current_board.getGrid()[p_row][p_col]))
 
     multiple = abs(p_row - movePositions[0][1])
-    
+
     move = Move(piece, move_positions = movePositions, multiple = multiple)
 
 
