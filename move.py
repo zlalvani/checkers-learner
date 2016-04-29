@@ -38,8 +38,8 @@ class Move(object):
 					return
 				else:
 					self.add(getDirection(last_row, last_col, new_row, new_col, self.color))
-
-
+				last_col = new_col
+				last_row = new_row
 
 	def __eq__(self, other):
 		#doesn't handle opposite color but same move case
