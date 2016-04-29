@@ -97,7 +97,7 @@ class Learner(object):
 					self.state_list.append(state)
 					self.weights_list.append([1] * len(_board.getInverse().getMoveList(AI_COLOR)))
 					j = list(zip(*_board.getInverse().getMoveList(AI_COLOR))[1]).index(_move)
-					self.weights_list[-1][j] *= factor
+					self.weights_list[-1][j] *= (1.0 / factor)
 
 		self.X = np.array(self.state_list)
 		self._tree = BallTree(self.X, metric='manhattan')
@@ -199,12 +199,13 @@ class Learner(object):
 		ind = ind[0].tolist()
 
 		if len(ind) > 0:
-			print "neighbors found"
+			pass
+			# print "neighbors found"
 
 		#cur_moves = current_board.getMoveList(AI_COLOR)
 		moves = []
 		weights = []
-		print ind
+		# print ind
 		for i in ind:
 			_board = Board(new_array = self.state_list[i])
 			assert(len(_board.getMoveList(AI_COLOR)) == len(self.weights_list[i]))
@@ -212,8 +213,8 @@ class Learner(object):
 				# move.printMove()
 				# current_board.printBoard()
 				if current_board.verifyMove(AI_COLOR, move = move):
-					print "move found"
-					move.printMove()
+					# print "move found"
+					# move.printMove()
 					if move not in moves:
 						moves.append(move)
 						weights.append(self.weights_list[i][j])
@@ -221,7 +222,7 @@ class Learner(object):
 						weights[moves.index(move)] *= self.weights_list[i][j]
 		if len(moves) == 0:
 			# raise Exception()
-			print "aborted neighbors"
+			# print "aborted neighbors"
 			return None
 		else:
 			assert(len(moves) == len(weights))

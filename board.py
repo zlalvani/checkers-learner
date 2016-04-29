@@ -55,13 +55,13 @@ class Board(object):
 
 	def verifyMove(self, color, next_board = None, move = None):
 		if next_board is not None:
-			if len(self.__moves[color]):
+			if self.__moves[color] is not None:
 				return any(next_board == bd[0] for bd in self.__moves[color])
 			else:
 				self.getMoveList(color)
 				return self.verifyMove(color, next_board = next_board)
 		elif move is not None:
-			if len(self.__moves[color]):
+			if self.__moves[color] is not None:
 				return any(move == bd[1] for bd in self.__moves[color])
 			else:
 				self.getMoveList(color)
