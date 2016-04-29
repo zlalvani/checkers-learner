@@ -10,6 +10,9 @@ from globalconsts import \
     LOSE, WIN, CONTINUE, TIE, \
     WIN_FACTOR, LOSE_FACTOR
 
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+
 class Learner(object):
 	"""
 	A class that instantiates the feature space for an individual AI,
