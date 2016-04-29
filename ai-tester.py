@@ -188,4 +188,6 @@ if __name__ == "__main__":
 	winner = Learner()
 
 	trainWithSelf(winner, game_count)
+	result = playLoser(winner, game_count)
+	print result[WIN], result[LOSE], result[TIE]
 
