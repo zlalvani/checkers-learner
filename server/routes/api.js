@@ -47,9 +47,7 @@ module.exports = function(app, express) {
         timeout: 10000
       }, function(error, response, body) {
 	      // return the information  as JSON
-				res.json({
-	        works: body
-	      });
+				res.json(body);
 	    });
 		});
 

@@ -232,7 +232,7 @@ var CheckersUI = (function(){
         data: {board: board, movePiece: movePiece, movePositions: movePositions},
         type: 'POST',
         success: function (data) {
-            cb(data.works);
+              cb(data);
         },
         error: function (xhr, status, error) {
             console.log('Error: ' + error.message);
@@ -257,15 +257,16 @@ var CheckersUI = (function(){
 
   function makeMove(){
     pieceMove.moved = false;
-    self.validate(convertToBoardFmt(), pieceMove.starting, pieceMove.moves, (valid)=>{
-      if(!valid){
+    self.validate(convertToBoardFmt(), pieceMove.starting, pieceMove.moves, (bd)=>{
+      if(!bd.valid){
         var mc = pieceMove.checker;
         mc.x = pieceMove.starting.coor.xCoor;
         mc.y = pieceMove.starting.coor.yCoor
       }
       grabbing = null;
+      convertFromBoardFmt(bd.board)
       redraw();
-      if(valid){
+      if(bd.valid){
         AIMove();
       }
     });

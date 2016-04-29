@@ -67,7 +67,7 @@ def verify_move():
     if(verified):
         pickle.dump(Board(new_array = boardArray), open("current_board.pkl", "wb"))
 
-    return json.dumps(verified)
+    return json.dumps({'verified':verified, 'board':[1]*8})
 
 
 if __name__ == '__main__':
