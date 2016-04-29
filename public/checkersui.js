@@ -1,7 +1,7 @@
 var CheckersUI = (function(){
 
   var canvasId, canvas, width, height, context, sqsz;
-  var checkers;
+  var checkers, pieceMove;
 
   function init(_canvasId, _props){
     _props = _props || {};
@@ -18,22 +18,7 @@ var CheckersUI = (function(){
     canvas.addEventListener('mouseup', endMove);
     setInterval(onTick, 1000/30);
     getBoardState();
-    // checkers = [];
-    // for (var i = 0;i < 12; i++){
-    //   checkers.push({
-    //     x: (i*2)% 8 + (Math.floor(1+i/4)%2),
-    //     y: Math.floor(i/4),
-    //     king :false,
-    //     team: 0
-    //   });
-    //   checkers.push({
-    //     x: (i*2)%8 + (Math.floor(i/4)%2),
-    //     y: 7 - Math.floor(i/4),
-    //     king :false,
-    //     team:1
-    //   });
-    // }
-    // redraw();
+    pieceMove = {moves:[]};
   }
 
   function redraw(){
@@ -99,6 +84,7 @@ var CheckersUI = (function(){
   }
 
   var grabbing = null;
+
   function startMove(e){
     var mouse = getMousePosition(e);
     for (var i = 0; i < checkers.length; i++){
@@ -108,6 +94,24 @@ var CheckersUI = (function(){
         checkers[i].oldy = checkers[i].y;
         checkers[i].tx = checkers[i].x;
         checkers[i].ty = checkers[i].y;
+        if(pieceMove.moved){
+          if(pieceMove.pieceMoved != grabbing){
+            console.log("changing")
+            pieceMove.moves = [];
+            var mc = pieceMove.checker;
+            mc.x = pieceMove.starting.coor.xCoor;
+            mc.y = pieceMove.starting.coor.yCoor;
+            pieceMove.moved = false;
+            redraw();
+          }
+        }
+        if(!pieceMove.moved){
+          console.log("Setting Starting")
+          pieceMove.starting = {coor: {xCoor: checkers[i].x, yCoor: checkers[i].y}};
+        }
+        pieceMove.pieceMoved = grabbing;
+        pieceMove.checker = checkers[i];
+
         break;
       }
     }
@@ -148,7 +152,9 @@ var CheckersUI = (function(){
   function convertToPieceFmt(checkerPiece, xCoor, yCoor){
     var index = Math.floor(xCoor/2)*2 + Math.floor(yCoor) * 4;
     var value = (checkerPiece.team * 2 - 1) * (checkerPiece.king ? 2 : 1);
-    return {value: value, index: index}
+    xCoor = Math.round(xCoor);
+    yCoor = Math.round(yCoor);
+    return {coor: [xCoor, yCoor], index: index, value: value}
   }
 
 
@@ -173,17 +179,13 @@ var CheckersUI = (function(){
       var mc = checkers[grabbing];
       mc.x = Math.round(mouse.x/sqsz - .5);
       mc.y = Math.round(mouse.y/sqsz - .5);
-      console.log(mc);
       var movePiece = convertToPieceFmt(mc, mc.oldx, mc.oldy);
       var movePositions = [convertToPieceFmt(mc, mc.x, mc.y)];
-      self.validate(convertToBoardFmt(), movePiece, movePositions, (valid)=>{
-        if(!valid){
-          mc.x = mc.oldx;
-          mc.y = mc.oldy;
-        }
-        grabbing = null;
-        redraw();
-      });
+      // Record Move in list for sending
+      pieceMove.moved = true;
+      pieceMove.moves.push({coor: {xCoor: mc.x, yCoor: mc.y}});
+      grabbing = null;
+      redraw();
     }
   }
 
@@ -225,19 +227,12 @@ var CheckersUI = (function(){
   }
 
   function validate(board, movePiece, movePositions, cb){
-    console.log(board);
-    console.log("hit");
     $.ajax({
         url: 'http://localhost:8080/api/verify',
         data: {board: board, movePiece: movePiece, movePositions: movePositions},
         type: 'POST',
         success: function (data) {
-          console.log(data);
-            // var ret = jQuery.parseJSON(data);
-            // $('#lblResponse').html(ret.msg);
-            console.log('Success: ')
             cb(data.works);
-            // return true;
         },
         error: function (xhr, status, error) {
             console.log('Error: ' + error.message);
@@ -251,8 +246,6 @@ var CheckersUI = (function(){
         url: 'http://localhost:8080/api/getAIMove',
         type: 'GET',
         success: function (data) {
-            console.log('Success: ')
-            console.log(data);
             convertFromBoardFmt(data.board)
             redraw();
         },
@@ -262,12 +255,28 @@ var CheckersUI = (function(){
     });
   }
 
+  function makeMove(){
+    pieceMove.moved = false;
+    self.validate(convertToBoardFmt(), pieceMove.starting, pieceMove.moves, (valid)=>{
+      if(!valid){
+        var mc = pieceMove.checker;
+        mc.x = pieceMove.starting.coor.xCoor;
+        mc.y = pieceMove.starting.coor.yCoor
+      }
+      grabbing = null;
+      redraw();
+      if(valid){
+        AIMove();
+      }
+    });
+  }
 
   var self = {
     init: init,
     load: load,
     getBoard: getBoard,
     getBoardState: getBoardState,
+    makeMove: makeMove,
     validate: validate,
     AIMove: AIMove
   };

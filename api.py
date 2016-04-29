@@ -9,12 +9,14 @@ app = Flask(__name__, static_url_path='')
 @app.route('/getAIMove', methods=['GET'])
 def get_AI_move():
 
+    # Load in the crrent board if it exists
     try:
         current_board = pickle.load(open("current_board.pkl", "rb"))
     except:
         current_board = Board()
         pickle.dump(current_board, open("current_board.pkl", "wb"))
 
+    # Load in the learner class instance if it exists
     try:
         learner = pickle.load(open("learner.pkl", "rb"))
     except:
@@ -23,7 +25,6 @@ def get_AI_move():
 
     # Use the learner to make an AI move
     move = learner.getNextMove(current_board.getInverse())
-
     next_board = move[0].getInverse()
     # Save move into pickle file
     pickle.dump(next_board, open("current_board.pkl", "wb"))
@@ -43,11 +44,12 @@ def get_board():
 @app.route('/verify', methods=['POST'])
 def verify_move():
     content = request.json
-    print(content)
     boardArray = [int(str(element)) for element in content['board']]
-    movePiece = (int(str(content['movePiece']['index'])), int(str(content['movePiece']['value'])))
-    movePositions = [(int(str(element['index'])), int(str(element['value']))) for element in content['movePositions']]
-    print("move Piece", movePiece)
+    def getCoor(coor):
+        return [int(str(coor['xCoor'])), int(str(coor['yCoor']))]
+    startingPos = getCoor(content['movePiece']['coor'])
+    movePositions = [getCoor(element['coor']) for element in content['movePositions']]
+    print("Starting Piece", startingPos)
     print("move Positions", movePositions)
 
     try:
@@ -60,7 +62,6 @@ def verify_move():
 
     # Make it work for moves instead of board
     # next_board = current_board.(next_board)
-
 
     verified = current_board.verifyMove(RED, next_board = next_board)
     if(verified):

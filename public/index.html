@@ -5,12 +5,43 @@
   <title>Checkers UI</title>
   <script src='checkersui.js'></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+  <!-- Google Material Design Lite -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://code.getmdl.io/1.1.3/material.indigo-pink.min.css">
+  <link rel="stylesheet" href="https://code.getmdl.io/1.1.3/material.blue_grey-indigo.min.css" />
+  <script defer src="https://code.getmdl.io/1.1.3/material.min.js"></script>
   <link rel="stylesheet" href="checkersui.css">
 </head>
 <body>
-  <div class='checkersui-container'>
-    <canvas id='checkersCanvas'></canvas>
+  <!-- Always shows a header, even in smaller screens. -->
+  <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+    <header class="mdl-layout__header">
+      <div class="mdl-layout__header-row">
+        <span class="mdl-layout-title">Trainable Checkers AI</span>
+        <div class="mdl-layout-spacer"></div>
+      </div>
+    </header>
+    <main class="mdl-layout__content">
+      <div class="page-content">
+
+        <div class="mdl-grid checkersui-container">
+          <div class="mdl-cell mdl-cell--3-offset mdl-cell--6-col">
+            <canvas id='checkersCanvas'></canvas>
+          </div>
+          <div class="mdl-cell mdl-cell--3-col button-move">
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect
+            mdl-button--accent" onclick="CheckersUI.makeMove()">
+            Make Move
+          </button>
+          </div>
+        </div>
+
+
+
+      </div>
+    </main>
   </div>
+
   <script>
   CheckersUI.init("checkersCanvas")
   </script>
