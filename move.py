@@ -29,13 +29,6 @@ class Move(object):
 			last_row = self.piece[0]
 			last_col = self.piece[1]
 
-			dir_dic = {
-				FORWARD_LEFT : pass,
-				FORWARD_RIGHT : pass,
-				BACKWARD_LEFT : pass,
-				BACKWARD_RIGHT : pass
-			}
-
 			for pos in move_positions:
 				new_row = pos[1]
 				new_col = pos[0]
@@ -97,13 +90,13 @@ class Move(object):
 
 
 def getDirection(last_row, last_col, new_row, new_col, color):
-	dir_tup = (np.sign(last_row - new_row), np.sign(last_col - new_col))
+	dir_tup = (np.sign(new_row - last_row), np.sign(new_col - last_col))
 
-	if (dir_tup == () and color == RED) or (dir_tup == () and color == BLACK):
+	if (dir_tup == (-1, -1) and color == RED) or (dir_tup == (1, 1) and color == BLACK):
 		return FORWARD_LEFT
-	elif (dir_tup == () and color == RED) or (dir_tup == () and color == BLACK):
+	elif (dir_tup == (-1, 1) and color == RED) or (dir_tup == (1, -1) and color == BLACK):
 		return FORWARD_RIGHT
-	elif (dir_tup == () and color == RED) or (dir_tup == () and color == BLACK):
+	elif (dir_tup == (1, -1) and color == RED) or (dir_tup == (-1, 1) and color == BLACK):
 		return BACKWARD_LEFT
-	elif (dir_tup == () and color == RED) or (dir_tup == () and color == BLACK):
+	elif (dir_tup == (1, 1) and color == RED) or (dir_tup == (-1, -1) and color == BLACK):
 		return BACKWARD_RIGHT

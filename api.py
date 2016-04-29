@@ -1,6 +1,7 @@
 import json, pickle
 import numpy as np
 from board import Board
+from move import Move
 from learner import Learner
 from flask import Flask, request
 from globalconsts import  RED, BLACK
@@ -83,10 +84,11 @@ def verify_move():
         # verified = current_board.verifyMove(RED, next_board = next_board)
         verified = current_board.verifyMove(RED, move = move)
     if verified:
+        print "move verified"
         pickle.dump(Board(current_board.applyMove(move)), open("current_board.pkl", "wb"))
-
-    return json.dumps(Board(current_board).applyMove(move).getArray().tolist())
-
+        return json.dumps({'verified':verified, 'board': Board(current_board).applyMove(move).getArray().tolist()})
+    else:
+        return json.dumps({'verified': verified, 'board': current_board.getArray().tolist()})
 
 if __name__ == '__main__':
     app.run(debug=True)
