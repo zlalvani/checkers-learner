@@ -11,28 +11,34 @@ class Move(object):
 		assert(direction in [FORWARD_LEFT, FORWARD_RIGHT, BACKWARD_LEFT, BACKWARD_RIGHT, None])
 		assert(multiple in [1, 2])
 		assert(piece[2] in [RED, BLACK])
-		self.__chain = []
-		self.__multiple = multiple
-		self.__piece = piece
-		self.__color = piece[2]
+		self._chain = []
+		self.multiple = multiple
+		self.piece = piece #tuples are immutable so we shouldn't have to copy
+		self.color = piece[2]
 		self.add(direction)
 
 	def __eq__(self, other):
 		#doesn't handle opposite color but same move case
 		if other is None:
 			return False
-		return cmp(self.__chain, other.__chain) == 0 and cmp(self.__piece, other.__piece) == 0
+		return cmp(self._chain, other._chain) == 0 and cmp(self.piece, other.piece) == 0
 
 	def add(self, direction):
 		assert(direction in [FORWARD_LEFT, FORWARD_RIGHT, BACKWARD_LEFT, BACKWARD_RIGHT, None])
-		self.__chain.append(direction)
+		self._chain.append(direction)
 
 	def getChain(self):
-		return cp.deepcopy(self.__chain)
+		return cp.deepcopy(self._chain)
 
 	def clone(self):
-		new_move = Move(piece = self.__piece, multiple = self.__multiple)
-		new_move.__chain = self.getChain()
+		new_move = Move(piece = self.piece, multiple = self.multiple)
+		new_move._chain = self.getChain()
+		return new_move
+
+	def getInverse(self):
+		new_piece = (7 - self.piece[0], 7 - self.piece[1], -self.color)
+		new_move = Move(piece = new_piece, multiple = self.multiple)
+		new_move._chain = self.getChain()
 		return new_move
 
 	def printMove(self):
@@ -55,8 +61,8 @@ class Move(object):
 			1 : "MOVE"
 		}
 
-		print piece_dic[self.__color], mul_dic[self.__multiple], "AT:", self.__piece[0], self.__piece[1]
+		print piece_dic[self.color], mul_dic[self.multiple], "AT:", self.piece[0], self.piece[1]
 		print "\t" + "Direction List:"
-		for d in self.__chain:
+		for d in self._chain:
 			print "\t\t" + dir_dic[d]
 
