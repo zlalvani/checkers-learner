@@ -1,86 +1,177 @@
-import random
 import numpy as np
+import copy as cp
+import random
 from board import Board
 from sklearn.neighbors import BallTree
 from globalconsts import \
     EMPTY, RED, BLACK, BKING, RKING, \
     FORWARD_LEFT, FORWARD_RIGHT, BACKWARD_LEFT, BACKWARD_RIGHT, \
-    AI_COLOR, THRESHOLD, PLAYER_COLOR
+    AI_COLOR, THRESHOLD, PLAYER_COLOR, \
+    LOSE, WIN, CONTINUE, TIE, \
+    WIN_FACTOR, LOSE_FACTOR
 
 class Learner(object):
-    '''
-    A class that instantiates the feature space for an individual AI,
-    chooses moves, and performs learning
-    '''
-    def __init__(self, data_points = [], current_game = [], threshold = THRESHOLD):
-        self.state_list = []
-        self.weights_list = []
-        for state, weights in data_points:
-            assert(len(state) == 32)
-            self.state_list.append(state)
-            self.weights_list.append(weights)
+	"""
+	A class that instantiates the feature space for an individual AI,
+	chooses moves, and performs learning
+	"""
+	def __init__(self, data_points = None, ai_history = None, threshold = THRESHOLD):
+		self.state_list = []
+		self.weights_list = []
 
-        self.threshold = threshold
+		if data_points is None:
+			data_points = []
+		if ai_history is None:
+			ai_history = []
 
-        #self.__featureTransform()
-        self.X = np.array(self.state_list)
+		for state, weights in data_points:
+			assert(len(state) == 32)
+			self.state_list.append(state)
+			self.weights_list.append(weights)
 
-        assert(self.X.shape == (len(data_points), 32) or len(data_points) == 0)
-        #Think about different distance metrics. Manhattan or minkowski?
-        if len(data_points) > 0:
-            self.__tree = BallTree(self.X, metric='manhattan')
-        else:
-            self.__tree = None
+		self._threshold = threshold
+		self._ai_history = cp.deepcopy(ai_history)
 
-    def getNextMove(self, current_board):
+		#self._featureTransform()
+		self.X = np.array(self.state_list)
 
-        nn_move = self.__getNearestNeighbors(current_board)
-        if nn_move is not None:
-            return nn_move
-        else:
-            return self.__getMinimax(current_board)
+		assert(self.X.shape == (len(data_points), 32) or len(data_points) == 0)
+		#Think about different distance metrics. Manhattan or minkowski? P < 1?
+		if len(data_points) > 0:
+			self._tree = BallTree(self.X, metric='manhattan')
+		else:
+			self._tree = None
 
-    def __getMinimax(self, current_board):
-        (bestBoard, bestVal) = minMax2(current_board, 5)
-        return bestBoard
+	def getNextMove(self, current_board):
+		# current_board.printBoard()
+		nn_move = self._getNearestNeighbors(current_board)
+		if nn_move is not None:
+			next_move = nn_move
+		else:
+			next_move = self._getMinimax(current_board)
+		self._ai_history.append(next_move)
+		return next_move
 
-    def __getNearestNeighbors(self, current_board):
-        #dist, ind = self.__tree.query(current_board.getArray(), k=3)
-        if self.__tree is None:
-            return None
-        ind = self.__tree.query_radius(current_board.getArray(), r = self.threshold).tolist()
+	def updateWeights(self, game_history, status):
+		
+		if status == WIN:
+			factor = WIN_FACTOR
+		elif status == LOSE:
+			factor = LOSE_FACTOR
+		elif status == TIE:
+			factor = 1
 
-        #cur_moves = current_board.getMoveList(AI_COLOR)
-        moves = []
-        weights = []
-        for i in ind:
-            _board = Board(new_array = self.state_list[i])
-            assert(len(_board.getMoveList(AI_COLOR)) == len(self.weights_list[i]))
-            for j, (board, move) in enumerate(_board.getMoveList(AI_COLOR)):
-                if current_board.verifyMove(AI_COLOR, move = move):
-                    moves += move
-                    weights += self.weights_list[i][j]
-        if len(moves) == 0:
-            return None
-        else:
-            assert(len(moves) == len(weights))
-            return np.random.choice(moves, 1, weights)
-        #neighbor_moves = [move for move in neighbor_moves if move in cur_moves]
+		# old_board = Board()
+		for _board, _move in game_history:
+			assert(any(_move == mv[1] for mv in _board.getMoveList(_move.color)))
+
+			if _move.color == AI_COLOR:
+				state = _board.getArray().tolist()
+
+				if state in self.state_list:
+					i = self.state_list.index(state)
+					# j = self.state_list[i].find(move)
+					# print zip(*_board.getMoveList(AI_COLOR))[1]
+					# print list(zip(*_board.getMoveList(AI_COLOR))[1])
+					j = list(zip(*_board.getMoveList(AI_COLOR))[1]).index(_move)
+					self.weights_list[i][j] *= factor
+
+				else:
+					self.state_list.append(state)
+					self.weights_list.append([1] * len(_board.getMoveList(AI_COLOR)))
+					# print zip(*_board.getMoveList(AI_COLOR))[1]
+					j = list(zip(*_board.getMoveList(AI_COLOR))[1]).index(_move)
+					self.weights_list[-1][j] *= factor
+
+			elif _move.color == PLAYER_COLOR:
+				_move = _move.getInverse()
+				state = _board.getInverse().getArray().tolist()
+
+				if state in self.state_list:
+					i = self.state_list.index(state)
+					# j = self.state_list[i].find(move)
+					j = list(zip(*_board.getInverse().getMoveList(AI_COLOR))[1]).index(_move)
+					self.weights_list[i][j] *= (1.0 / factor)
+
+				else:
+					self.state_list.append(state)
+					self.weights_list.append([1] * len(_board.getInverse().getMoveList(AI_COLOR)))
+					j = list(zip(*_board.getInverse().getMoveList(AI_COLOR))[1]).index(_move)
+					self.weights_list[-1][j] *= (1.0 / factor)
+
+		self.X = np.array(self.state_list)
+		self._tree = BallTree(self.X, metric='manhattan')
 
 
-    def __featureTransform(self):
-        #replace weights with a Gaussian at some point
-        #or come up with a better feature transform
-        weights = [1, 2, 3, 4, 4, 3, 2, 1]
-        transformed_list = []
-        for state in self.state_list:
-            assert(len(state) == 32)
-            new_state = []
-            for i in range(32):
-                new_state.append(state[i] * weights[i / 4])
-            transformed_list.append(new_state)
 
-        self.X = np.array(transformed_list)
+	def getAiHistory(self):
+		return cp.deepcopy(self._ai_history)
+
+	def _getMinimax(self, current_board):
+		# return random.choice([bd[1] for bd in current_board.getMoveList(AI_COLOR)])
+		(bestBoard, bestVal) = minMax2(current_board, 6)
+		# print("bestVal", bestVal)
+		# bestBoard[0].printBoard()
+		return bestBoard[1]
+
+	def _getNearestNeighbors(self, current_board):
+		#dist, ind = self._tree.query(current_board.getArray(), k=3)
+		if self._tree is None:
+			return None
+		ind = self._tree.query_radius(current_board.getArray(), r = self._threshold).tolist()
+		ind = ind[0].tolist()
+
+		if len(ind) > 0:
+			pass
+			# print "neighbors found"
+
+		#cur_moves = current_board.getMoveList(AI_COLOR)
+		moves = []
+		weights = []
+		# print ind
+		for i in ind:
+			_board = Board(new_array = self.state_list[i])
+			assert(len(_board.getMoveList(AI_COLOR)) == len(self.weights_list[i]))
+			for j, (board, move) in enumerate(_board.getMoveList(AI_COLOR)):
+				# move.printMove()
+				# current_board.printBoard()
+				if current_board.verifyMove(AI_COLOR, move = move):
+					# print "move found"
+					# move.printMove()
+					if move not in moves:
+						moves.append(move)
+						weights.append(self.weights_list[i][j])
+					else:
+						weights[moves.index(move)] *= self.weights_list[i][j]
+		if len(moves) == 0:
+			# raise Exception()
+			# print "aborted neighbors"
+			return None
+		else:
+			assert(len(moves) == len(weights))
+			zipped = zip(moves, weights)
+			moves = [mv[0] for mv in zipped if mv[1] >= 1]
+			weights = [mv[1] for mv in zipped if mv[1] >= 1]
+
+			if len(moves) < 1: return None
+
+			return np.random.choice(moves, 1, weights)[0]
+		#neighbor_moves = [move for move in neighbor_moves if move in cur_moves]
+
+
+	def _featureTransform(self):
+		#replace weights with a Gaussian at some point
+		#or come up with a better feature transform
+		weights = [1, 2, 3, 4, 4, 3, 2, 1]
+		transformed_list = []
+		for state in self.state_list:
+			assert(len(state) == 32)
+			new_state = []
+			for i in range(32):
+				new_state.append(state[i] * weights[i / 4])
+			transformed_list.append(new_state)
+
+		self.X = np.array(transformed_list)
 
 
 
@@ -126,6 +217,7 @@ def maxMinBoard(board, currentDepth, bestMove):
         # Create the iterator for the Moves
         board_moves = board.getMoveList(AI_COLOR)
         for board_move in board_moves:
+
             value = minMove2(board_move[0], currentDepth-1)[1]
             if value > best_move_value:
                 best_move_value = value
@@ -140,6 +232,7 @@ def maxMinBoard(board, currentDepth, bestMove):
             if value < best_move_value:
                 best_move_value = value
                 best_board = board_move
+
 
     # Things appear to be fine, we should have a board with a good value to move to
     return (best_board, best_move_value)
