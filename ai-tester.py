@@ -189,5 +189,6 @@ if __name__ == "__main__":
 
 	trainWithSelf(winner, game_count)
 	result = playLoser(winner, game_count)
-	print result[WIN], result[LOSE], result[TIE]
+	with open('results.txt', 'w+') as f:
+		f.write(str(result[WIN]) + " " + str(result[LOSE]) + " " + str(result[TIE]))
 
