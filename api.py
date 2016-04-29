@@ -1,4 +1,5 @@
-import json, learner, pickle
+import json, pickle
+import numpy as np
 from board import Board
 from learner import Learner
 from flask import Flask, request
@@ -25,7 +26,7 @@ def get_AI_move():
 
     # Use the learner to make an AI move
     move = learner.getNextMove(current_board.getInverse())
-    next_board = move[0].getInverse()
+    next_board = current_board.applyMove(move.getInverse())
     # Save move into pickle file
     pickle.dump(next_board, open("current_board.pkl", "wb"))
 
@@ -58,16 +59,33 @@ def verify_move():
         current_board = Board()
         pickle.dump(current_board, open("current_board.pkl", "wb"))
 
-    next_board = Board(new_array = boardArray)
+    seen_pos = []
+    movePositions = [pos for pos in movePositions if not (pos in seen_pos or seen_pos.append(pos))]
+
+    p_row = startingPos[1]
+    p_col = startingPos[0]
+
+    piece = (p_row, p_col, np.sign(current_board.getGrid()[p_row][p_col]))
+
+    multiple = abs(p_row - movePositions[0][1])
+    
+    move = Move(piece, move_positions = movePositions, multiple = multiple)
+
+
+
+    # next_board = Board(new_array = boardArray)
 
     # Make it work for moves instead of board
     # next_board = current_board.(next_board)
+    if not move.valid:
+        verified = False
+    else:
+        # verified = current_board.verifyMove(RED, next_board = next_board)
+        verified = current_board.verifyMove(RED, move = move)
+    if verified:
+        pickle.dump(Board(current_board.applyMove(move)), open("current_board.pkl", "wb"))
 
-    verified = current_board.verifyMove(RED, next_board = next_board)
-    if(verified):
-        pickle.dump(Board(new_array = boardArray), open("current_board.pkl", "wb"))
-
-    return json.dumps(verified)
+    return json.dumps(Board(current_board).applyMove(move).getArray().tolist())
 
 
 if __name__ == '__main__':

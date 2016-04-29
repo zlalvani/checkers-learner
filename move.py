@@ -7,15 +7,46 @@ from globalconsts import \
 
 class Move(object):
 	'''A class to represent a Move, i.e. a chain of piece coordinate updates'''
-	def __init__(self, piece, direction = None, multiple = 1):
+	def __init__(self, piece, direction = None, move_positions = None, multiple = 1):
 		assert(direction in [FORWARD_LEFT, FORWARD_RIGHT, BACKWARD_LEFT, BACKWARD_RIGHT, None])
-		assert(multiple in [1, 2])
-		assert(piece[2] in [RED, BLACK])
+		# assert(multiple in [1, 2])
+		# assert(piece[2] in [RED, BLACK])
 		self._chain = []
 		self.multiple = multiple
 		self.piece = piece #tuples are immutable so we shouldn't have to copy
 		self.color = piece[2]
-		self.add(direction)
+		self.valid = True
+		if self.color not in [RED, BLACK]:
+			self.valid = False
+			return
+		if self.multiple not in [1, 2]:
+			self.valid = False
+			return
+		if direction is not None:
+			self.add(direction)
+		elif move_positions is not None:
+
+			last_row = self.piece[0]
+			last_col = self.piece[1]
+
+			dir_dic = {
+				FORWARD_LEFT : pass,
+				FORWARD_RIGHT : pass,
+				BACKWARD_LEFT : pass,
+				BACKWARD_RIGHT : pass
+			}
+
+			for pos in move_positions:
+				new_row = pos[1]
+				new_col = pos[0]
+				if abs(last_col - new_col) != multiple \
+				or abs(last_row - new_row) != multiple:
+					self.valid = False
+					return
+				else:
+					self.add(getDirection(last_row, last_col, new_row, new_col, self.color))
+
+
 
 	def __eq__(self, other):
 		#doesn't handle opposite color but same move case
@@ -44,9 +75,7 @@ class Move(object):
 	def printMove(self):
 		piece_dic = {
 			RED : 'RED',
-			BLACK : 'BLACK',
-			RKING : 'RKING',
-			BKING : 'BKING'
+			BLACK : 'BLACK'
 		}
 
 		dir_dic = {
@@ -66,3 +95,15 @@ class Move(object):
 		for d in self._chain:
 			print "\t\t" + dir_dic[d]
 
+
+def getDirection(last_row, last_col, new_row, new_col, color):
+	dir_tup = (np.sign(last_row - new_row), np.sign(last_col - new_col))
+
+	if (dir_tup == () and color == RED) or (dir_tup == () and color == BLACK):
+		return FORWARD_LEFT
+	elif (dir_tup == () and color == RED) or (dir_tup == () and color == BLACK):
+		return FORWARD_RIGHT
+	elif (dir_tup == () and color == RED) or (dir_tup == () and color == BLACK):
+		return BACKWARD_LEFT
+	elif (dir_tup == () and color == RED) or (dir_tup == () and color == BLACK):
+		return BACKWARD_RIGHT
