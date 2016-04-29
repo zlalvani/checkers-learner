@@ -21,7 +21,7 @@ if __name__ == "__main__":
 
 		winner_moves = []
 		loser_moves = []
-		game_history = [game_board]
+		game_history = []
 
 		turn_count = 0
 
@@ -37,6 +37,8 @@ if __name__ == "__main__":
 			loser_move = loser.getNextMove(game_board.getInverse())
 
 			loser_moves.append(loser_move.getInverse())
+			assert(loser_move is not None and game_board is not None)
+			game_history.append((game_board, loser_move.getInverse()))
 
 			# loser_move.printMove()
 			loser_move.getInverse().printMove()
@@ -45,7 +47,6 @@ if __name__ == "__main__":
 			# temp = game_board
 			game_board.printBoard()
 			game_board = Board(game_board.applyMove(loser_move.getInverse()))
-			game_history.append(game_board)
 			game_board.printBoard()
 			# assert(temp != game_board)
 
@@ -61,6 +62,8 @@ if __name__ == "__main__":
 
 			# assert (temp != game_board)
 			winner_move = winner.getNextMove(game_board)
+			assert(winner_move is not None and game_board is not None)
+			game_history.append((game_board, winner_move))
 
 			winner_move.printMove()
 
@@ -68,7 +71,7 @@ if __name__ == "__main__":
 
 			# temp = game_board
 			game_board = Board(game_board.applyMove(winner_move))
-			game_history.append(game_board)
+			# game_history.append(game_board)
 
 			# game_board.printBoard()
 			turn_count += 1
@@ -77,10 +80,12 @@ if __name__ == "__main__":
 			
 		print game
 		if not tie_flag and game_board.checkGameStatus(AI_COLOR) != TIE:
-			winner.updateWeights(game_board, loser_moves, winner_moves, game_history = game_history)
+			winner.updateWeights(game_history, status = game_board.checkGameStatus(AI_COLOR))
+			# winner.updateWeights(game_board, loser_moves, winner_moves, game_history = game_history)
 		else:
+			winner.updateWeights(game_history, status = TIE)
 			# game_board.printBoard()
-			winner.updateWeights(game_board, loser_moves, winner_moves, status = TIE, game_history = game_history)
+			# winner.updateWeights(game_board, loser_moves, winner_moves, status = TIE, game_history = game_history)
 		loser_moves = None
 		winner_moves = None
 	

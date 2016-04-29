@@ -52,81 +52,134 @@ class Learner(object):
 		self._ai_history.append(next_move)
 		return next_move
 
-	def updateWeights(self, end_board, player_history, ai_history = None, status = None, ai_first = False, game_history = None):
-		if status is None:
-			status = end_board.checkGameStatus(AI_COLOR)
-
-		if ai_history is None:
-			ai_history = self._ai_history
-
-		assert(status != CONTINUE)
-
-		game_board = Board() #every game starts with the starting board
-
+	def updateWeights(self, game_history, status):
+		
 		if status == WIN:
 			factor = WIN_FACTOR
 		elif status == LOSE:
 			factor = LOSE_FACTOR
 		elif status == TIE:
 			factor = 1
-			# assuming ai_history begins with the first move made
-		for k, move in enumerate(ai_history):
-			assert(game_board in game_history)
 
-			if not ai_first:
-				# print "ai first false"
-				game_board = game_board.applyMove(player_history[k])
+		# old_board = Board()
+		for _board, _move in game_history:
+			assert(any(_move == mv[1] for mv in _board.getMoveList(_move.color)))
 
-			# get the possible moves from this board in a list
+			if _move.color == AI_COLOR:
+				state = _board.getArray().tolist()
 
-			game_moves = game_board.getMoveList(AI_COLOR)
-
-			# j is the index of the taken move in the list of possible moves
-			for j, (s_board, s_move) in enumerate(game_moves):
-				# if s_board == new_board:
-				if s_move == move:
-					break				
-
-
-			state = game_board.getArray().tolist()
-			# print state
-			state_flag = False
-			# if state in self.state_list:
-				# i is the index of the move state in the learner's state_list
-			for i, s_state in enumerate(self.state_list):
-				if len([a for a, b in zip(state, s_state) if a == b]) == len(state):
-					#print i, j, len(self.weights_list[i]) - 1
+				if state in self.state_list:
+					i = self.state_list.index(state)
+					# j = self.state_list[i].find(move)
+					# print zip(*_board.getMoveList(AI_COLOR))[1]
+					# print list(zip(*_board.getMoveList(AI_COLOR))[1])
+					j = list(zip(*_board.getMoveList(AI_COLOR))[1]).index(_move)
 					self.weights_list[i][j] *= factor
-					state_flag = True
-					break
-				
-			if not state_flag:
-				self.state_list.append(state)
-				weights = [1] * len(game_moves)
 
-				weights[j] *= factor 
+				else:
+					self.state_list.append(state)
+					self.weights_list.append([1] * len(_board.getMoveList(AI_COLOR)))
+					# print zip(*_board.getMoveList(AI_COLOR))[1]
+					j = list(zip(*_board.getMoveList(AI_COLOR))[1]).index(_move)
+					self.weights_list[-1][j] *= factor
 
-				self.weights_list.append(weights)
-				
-			#game_board becomes the result of the current move
-			test_board = game_board.applyMove(move)
-			if test_board is None:
-				game_board.printBoard()
-				move.printMove()
-				raise Exception()
-			game_board = game_board.applyMove(move)
+			elif _move.color == PLAYER_COLOR:
+				_move = _move.getInverse()
+				state = _board.getInverse().getArray().tolist()
 
-			if ai_first and k < len(player_history):
-				# print "player move applied"
-				game_board = game_board.applyMove(player_history[k])
+				if state in self.state_list:
+					i = self.state_list.index(state)
+					# j = self.state_list[i].find(move)
+					j = list(zip(*_board.getInverse().getMoveList(AI_COLOR))[1]).index(_move)
+					self.weights_list[i][j] *= (1.0 / factor)
 
+				else:
+					self.state_list.append(state)
+					self.weights_list.append([1] * len(_board.getInverse().getMoveList(AI_COLOR)))
+					j = list(zip(*_board.getInverse().getMoveList(AI_COLOR))[1]).index(_move)
+					self.weights_list[-1][j] *= factor
 
-		# if there's a player history, we'll update the weights in a similar fashion, 
-		# with an inverted starting board, assuming the player_moves are already inverted
-		# if player_history is not None:
-		# 	self.updateWeights(Board(end_board.getInverse()), status = status, ai_history = player_history, player_history = ai_history, ai_first = not ai_first)
 		self.X = np.array(self.state_list)
 		self._tree = BallTree(self.X, metric='manhattan')
+
+			# old_board = board
+
+
+	# def updateWeights(self, end_board, player_history, ai_history = None, status = None, ai_first = False, game_history = None):
+	# 	if status is None:
+	# 		status = end_board.checkGameStatus(AI_COLOR)
+
+	# 	if ai_history is None:
+	# 		ai_history = self._ai_history
+
+	# 	assert(status != CONTINUE)
+
+	# 	game_board = Board() #every game starts with the starting board
+
+	# 	if status == WIN:
+	# 		factor = WIN_FACTOR
+	# 	elif status == LOSE:
+	# 		factor = LOSE_FACTOR
+	# 	elif status == TIE:
+	# 		factor = 1
+	# 		# assuming ai_history begins with the first move made
+	# 	for k, move in enumerate(ai_history):
+	# 		assert(game_board in game_history)
+
+	# 		if not ai_first:
+	# 			# print "ai first false"
+	# 			game_board = game_board.applyMove(player_history[k])
+
+	# 		# get the possible moves from this board in a list
+
+	# 		game_moves = game_board.getMoveList(AI_COLOR)
+
+	# 		# j is the index of the taken move in the list of possible moves
+	# 		for j, (s_board, s_move) in enumerate(game_moves):
+	# 			# if s_board == new_board:
+	# 			if s_move == move:
+	# 				break				
+
+
+	# 		state = game_board.getArray().tolist()
+	# 		# print state
+	# 		state_flag = False
+	# 		# if state in self.state_list:
+	# 			# i is the index of the move state in the learner's state_list
+	# 		for i, s_state in enumerate(self.state_list):
+	# 			if len([a for a, b in zip(state, s_state) if a == b]) == len(state):
+	# 				#print i, j, len(self.weights_list[i]) - 1
+	# 				self.weights_list[i][j] *= factor
+	# 				state_flag = True
+	# 				break
+				
+	# 		if not state_flag:
+	# 			self.state_list.append(state)
+	# 			weights = [1] * len(game_moves)
+
+	# 			weights[j] *= factor 
+
+	# 			self.weights_list.append(weights)
+				
+	# 		#game_board becomes the result of the current move
+	# 		test_board = game_board.applyMove(move)
+	# 		if test_board is None:
+	# 			game_board.printBoard()
+	# 			move.printMove()
+	# 			raise Exception()
+	# 		game_board = game_board.applyMove(move)
+
+	# 		if ai_first and k < len(player_history):
+	# 			# print "player move applied"
+	# 			game_board = game_board.applyMove(player_history[k])
+
+
+	# 	# if there's a player history, we'll update the weights in a similar fashion, 
+	# 	# with an inverted starting board, assuming the player_moves are already inverted
+	# 	# if player_history is not None:
+	# 	# 	self.updateWeights(Board(end_board.getInverse()), status = status, ai_history = player_history, player_history = ai_history, ai_first = not ai_first)
+	# 	self.X = np.array(self.state_list)
+	# 	self._tree = BallTree(self.X, metric='manhattan')
 
 	def getAiHistory(self):
 		return cp.deepcopy(self._ai_history)
@@ -175,6 +228,8 @@ class Learner(object):
 			zipped = zip(moves, weights)
 			moves = [mv[0] for mv in zipped if mv[1] >= 1]
 			weights = [mv[1] for mv in zipped if mv[1] >= 1]
+
+			if len(moves) < 1: return None
 
 			return np.random.choice(moves, 1, weights)[0]
 		#neighbor_moves = [move for move in neighbor_moves if move in cur_moves]
