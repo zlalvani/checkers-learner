@@ -4,8 +4,8 @@ from move import Move
 import unittest as ut
 from globalconsts import RED, BLACK, AI_COLOR, PLAYER_COLOR, \
 	FORWARD_LEFT, FORWARD_RIGHT, BACKWARD_LEFT, BACKWARD_RIGHT
-from exampleboards import KINGS, START_MOVE_B_9_13, START_MOVE_R_21_17, \
-	CORNER, RED_EASY_LOOKAHEAD, RED_EASY_LOOKAHEAD_2, START
+from exampleboards import *
+
 
 class BoardTestCase(ut.TestCase):
 	def setUp(self):
@@ -47,6 +47,26 @@ class BoardTestCase(ut.TestCase):
 		testWithGrid(KINGS, 6, 1)
 		testWithGrid(CORNER, 6, 2)
 
+		self.board = Board(new_grid = NEW_KING)
+		test_board = Board(new_grid = NEW_KING_RESULT)
+		
+		self.assertTrue(any(bd[0] == test_board for bd in self.board.getMoveList(RED)))
+
+
+	def testApplyMove(self):
+		for board, move in self.board.getMoveList(BLACK) + self.board.getMoveList(RED):
+			self.assertEqual(board, self.board.applyMove(move), \
+				'move_board does not match move applied to self.board')
+
+		self.board = Board(new_grid = NEW_KING)
+		for board, move in self.board.getMoveList(BLACK) + self.board.getMoveList(RED):
+			self.assertEqual(board, self.board.applyMove(move), \
+				'move_board does not match move applied to self.board')
+
+		self.board = Board(new_grid = BLK_DOUBLE)
+		for board, move in self.board.getMoveList(BLACK) + self.board.getMoveList(RED):
+			self.assertEqual(board, self.board.applyMove(move), \
+				'move_board does not match move applied to self.board')
 
 	def testVerifyMove(self):
 		'''
@@ -58,6 +78,10 @@ class BoardTestCase(ut.TestCase):
 
 		self.assertTrue(self.board.verifyMove(BLACK, next_board = Board(new_grid = START_MOVE_B_9_13)))
 		self.assertTrue(self.board.verifyMove(RED, next_board = Board(new_grid = START_MOVE_R_21_17)))
+
+	def testGetInverse(self):
+		self.assertEqual(self.board.getInverse().getInverse(), self.board, \
+			'inverse of inverse of board is not original board')
 
 
 class LearnerTestCase(ut.TestCase):
@@ -74,7 +98,7 @@ class LearnerTestCase(ut.TestCase):
 		# print(self.learner.getNextMove(self.board))
 
 		# self.board= Board(new_grid = START)
-		self.board= Board(new_grid = RED_EASY_LOOKAHEAD_2)
+		self.board = Board(new_grid = RED_EASY_LOOKAHEAD_2)
 		best = self.learner.getNextMove(self.board)
 
 
@@ -84,8 +108,30 @@ class LearnerTestCase(ut.TestCase):
 		weights[0] = 1
 		self.learner = Learner(data_points = [(self.board.getArray().tolist(), weights)])
 		
-		self.assertEqual(self.learner.getNextMove(self.board), self.board.getMoveList(AI_COLOR)[0], \
+		# self.board.getMoveList(AI_COLOR)[0][1].printMove()
+		# self.learner.getNextMove(self.board).printBoard()
+
+		self.assertEqual(self.learner.getNextMove(self.board), self.board.getMoveList(AI_COLOR)[0][1], \
 				'predicted best move does not match')
+
+	def testUpdateWeights(self):
+		pass
+
+		# To test this we need a history of moves for an entire game...
+
+		# self.board = Board(new_grid = WIN_LOSE)
+
+
+		# ai_win_moves = []
+		# ai_win_moves.append(self.board.getMoveList(AI_COLOR)[0][1])
+		# self.board = self.board.applyMove(ai_win_moves[-1])
+		# ai_win_moves.append(self.board.getMoveList(AI_COLOR)[0][1])
+		# for board, move in self.board.getMoveList(AI_COLOR):
+		# 	board.printBoard()
+		# 	move.printMove()
+
+
+		# self.learner.updateWeights(self.board.getMoveList(AI_COLOR)[0][0], ai_history = ai_win_moves)
 
 
 class MoveTestCase(ut.TestCase):
@@ -101,6 +147,7 @@ class MoveTestCase(ut.TestCase):
 		self.move.add(FORWARD_RIGHT)
 
 		new_move = self.move.clone()
+
 		# print
 		# print "Move:"
 		# self.move.printMove()
@@ -112,25 +159,37 @@ class MoveTestCase(ut.TestCase):
 
 if __name__ == "__main__":
 
+	# -- Board
 
-	getMovesTestCase = BoardTestCase('testGetMovesList')
-	verifyMoveTestCase = BoardTestCase('testVerifyMove')
+	# getMovesTestCase = BoardTestCase('testGetMovesList')
+	# verifyMoveTestCase = BoardTestCase('testVerifyMove')
+	# applyMoveTestCase = BoardTestCase('testApplyMove')
+	# getInverseTestCase = BoardTestCase('testGetInverse')
 
-	boardTestSuite = ut.TestSuite()
-	boardTestSuite.addTest(getMovesTestCase)
-	boardTestSuite.addTest(verifyMoveTestCase)
+	# boardTestSuite = ut.TestSuite()
+	# boardTestSuite.addTest(getMovesTestCase)
+	# boardTestSuite.addTest(verifyMoveTestCase)
+	# boardTestSuite.addTest(applyMoveTestCase)
 
-	getMinimaxTestCase = LearnerTestCase('testMinimax')
-	getNearestNeighborTestCase = LearnerTestCase('testNearestNeighbor')
+	# # -- Learner
 
-	learnerTestSuite = ut.TestSuite()
-	learnerTestSuite.addTest(getMinimaxTestCase)
-	learnerTestSuite.addTest(getNearestNeighborTestCase)
+	# getMinimaxTestCase = LearnerTestCase('testMinimax')
+	# getNearestNeighborTestCase = LearnerTestCase('testNearestNeighbor')
 
-	moveTestSuite = ut.TestSuite()
+	# learnerTestSuite = ut.TestSuite()
+	# learnerTestSuite.addTest(getMinimaxTestCase)
+	# learnerTestSuite.addTest(getNearestNeighborTestCase)
 
+	# # -- Move
 
-	alltests = ut.TestSuite([boardTestSuite, learnerTestSuite])
+	# cloneTestCase = MoveTestCase('testClone')
+
+	# moveTestSuite = ut.TestSuite()
+	# moveTestSuite.addTest(cloneTestCase)
+
+	# # --
+
+	# alltests = ut.TestSuite([boardTestSuite, learnerTestSuite, moveTestSuite])
 
 	ut.main()
 

@@ -3,7 +3,8 @@ import copy as cp
 from move import Move
 from globalconsts import \
 	EMPTY, RED, BLACK, BKING, RKING, \
-	FORWARD_LEFT, FORWARD_RIGHT, BACKWARD_LEFT, BACKWARD_RIGHT
+	FORWARD_LEFT, FORWARD_RIGHT, BACKWARD_LEFT, BACKWARD_RIGHT, \
+	WIN, CONTINUE, LOSE, TIE
 
 #http://www.learnpython.org/en/Multiple_Function_Arguments
 
@@ -28,8 +29,8 @@ class Board(object):
 		self.weight = weight #figure out a way to associate a weight with each possible move
 
 		#RED should be AI, black should be opponent
-		self.__moves = {RED : [], BLACK : []}
-		self.__pieces = {RED : set([]), BLACK : set([])}
+		self.__moves = {RED : None, BLACK : None}
+		self.__pieces = {RED : None, BLACK : None}
 
 	def __eq__(self, other):
 		'''
@@ -54,23 +55,22 @@ class Board(object):
 
 	def verifyMove(self, color, next_board = None, move = None):
 		if next_board is not None:
-			if len(self.__moves[color]):
+			if self.__moves[color] is not None:
 				return any(next_board == bd[0] for bd in self.__moves[color])
 			else:
 				self.getMoveList(color)
 				return self.verifyMove(color, next_board = next_board)
 		elif move is not None:
-			if len(self.__moves[color]):
-				return any(next_board == bd[1] for bd in self.__moves[color])
+			if self.__moves[color] is not None:
+				return any(move == bd[1] for bd in self.__moves[color])
 			else:
 				self.getMoveList(color)
 				return self.verifyMove(color, move = move)
 		else:
 			return False
 
-
 	def getMoveList(self, color):
-		if len(self.__moves[color]) > 0:
+		if self.__moves[color] is not None:
 			return cp.deepcopy(self.__moves[color])
 		else:
 			self.__moves[color] = self.__checkForMoves(color)
@@ -78,11 +78,21 @@ class Board(object):
 
 	def getPieces(self, color):
 		#look into named tuples for pieces
-		if len(self.__pieces[color]) > 0:
+		if self.__pieces[color] is not None:
 			return cp.deepcopy(self.__pieces[color])
 		else:
 			self.__pieces[color] = self.__storePieceLocations(color)
 			return self.getPieces(color)
+
+	def checkGameStatus(self, color):
+		assert(not (self.getMoveList(color) == 0 and self.getMoveList(-color) == 0))
+		if len(self.getMoveList(color)) == 0 and len(self.getMoveList(-color)) == 0:
+			return TIE
+		if len(self.getMoveList(color)) == 0:
+			return LOSE
+		if len(self.getMoveList(-color)) == 0:
+			return WIN
+		return CONTINUE
 
 	def getInverse(self):
 		return Board(new_array = np.array([-p for p in (self.getArray().tolist())[::-1]]))
@@ -108,10 +118,96 @@ class Board(object):
 		for row in grid:
 			line = '. '
 			for piece in row:
+				if piece not in [RED, BLACK, RKING, BKING, EMPTY]:
+					print piece
 				line += piece_dic[piece] + ' '
 			line += '.'
 			print line
 		print hline
+
+	def applyMove(self, new_move):
+		move_board = Board(self)
+		piece = new_move.piece
+		multiple = new_move.multiple
+		row = piece[0]
+		col = piece[1]
+		color = new_move.color
+
+		assert(color in [RED, BLACK])
+
+		assert(multiple in [1, 2])
+		assert(row in range(8) and col in range(8))
+
+		# A move with a king that only goes forward should
+		# also be possible with a regular piece.
+
+		if np.sign(move_board.__grid[row][col]) != color:
+			return None
+
+		king = (move_board.__grid[row][col] == RKING or move_board.__grid[row][col] == BKING)
+
+		dirs = [FORWARD_LEFT, FORWARD_RIGHT, int(king) * BACKWARD_LEFT, int(king) * BACKWARD_RIGHT]
+		dirs = [d for d in dirs if d != 0]
+
+		for ind, d in enumerate(new_move.getChain()):
+			if d not in dirs:
+				return None
+			res1 = move_board.__checkDirection(color, row, col, d, 1)
+			res2 = move_board.__checkDirection(color, row, col, d, 2)
+
+			if multiple == 1:
+				assert(len(new_move.getChain()) == 1)
+				if res1 is not None and res1[0] == EMPTY:
+					val = move_board.__grid[row][col]
+					move_board.__grid[row][col] = EMPTY
+					move_board.__grid[res1[1]][res1[2]] = val
+					if not king:
+						if (res1[1] == 0 and color == RED) or (res1[1] == 7 and color == BLACK):
+							move_board.__grid[res1[1]][res1[2]] *= 2
+							if self.__grid[row][col] not in [RED, BLACK]:
+								print self.__grid[row][col]
+								raise Exception()
+						#if the move is valid, it should end after a piece is kinged, but we should confirm
+					# row = res1[1]
+					# col = res1[2]
+
+
+				else: return None
+
+			elif multiple == 2:
+				if res1 is not None and res2 is not None \
+				and np.sign(res1[0]) == -color \
+				and res2[0] == EMPTY:
+					# move_board = Board(self)
+					assert(move_board.__grid[row][col] in [RED, BLACK, RKING, BKING])
+					move_board.__grid[res2[1]][res2[2]] = move_board.__grid[row][col]
+					if move_board.__grid[res2[1]][res2[2]] not in [RED, BLACK, BKING, RKING]:
+						print move_board.__grid[res2[1]][res2[2]]
+						raise Exception()
+					move_board.__grid[res1[1]][res1[2]] = EMPTY
+					move_board.__grid[row][col] = EMPTY
+					
+					if not king: 
+						if (res2[1] == 0 and color == RED) or (res2[1] == 7 and color == BLACK):
+							if move_board.__grid[res2[1]][res2[2]] not in [RED, BLACK]:
+								print move_board.__grid[res2[1]][res2[1]]
+								new_move.printMove()
+								raise Exception()
+							move_board.__grid[res2[1]][res2[2]] *= 2
+							king = True
+							assert(ind == len(new_move.getChain()) - 1)
+							#if the move is valid, it should end after a piece is kinged, but we should confirm
+
+					row = res2[1]
+					col = res2[2]
+
+				else:
+					# self.printBoard()
+					# new_move.printMove()
+					# raise Exception() 
+					return None
+
+		return move_board
 
 	def __storePieceLocations(self, color):
 		locs = []
@@ -131,9 +227,9 @@ class Board(object):
 					moves_list += self.__getPieceMoves(color, row, col)
 		return (jumps_list if len(jumps_list) > 0 else moves_list)
 
-	def __getPieceJumps(self, color, row, col, piece_jumps = None, depth_flag = False, move = None):#, jump_tree = []):
+	def __getPieceJumps(self, color, row, col, piece_jumps = None, depth_flag = False, move = None, new_king = False):
 
-		#I literally have no idea how this fixed anything but it did:
+		#http://effbot.org/zone/default-values.htm
 		if piece_jumps is None:
 			piece_jumps = []
 
@@ -147,7 +243,8 @@ class Board(object):
 			res2 = self.__checkDirection(color, row, col, d, 2)
 			if res1 is not None and res2 is not None \
 			and np.sign(res1[0]) == -color \
-			and res2[0] == EMPTY:
+			and res2[0] == EMPTY \
+			and new_king == False:
 				move_board = Board(self)
 				if move is None:
 					move = Move((row, col, color), d, multiple = 2)
@@ -156,22 +253,29 @@ class Board(object):
 					new_move = cp.deepcopy(move)
 					new_move.add(d)
 
+				#check for king here: 
+
 				move_board.__grid[res2[1]][res2[2]] = move_board.__grid[row][col]
 				move_board.__grid[res1[1]][res1[2]] = EMPTY
 				move_board.__grid[row][col] = EMPTY
+				king_flag = False
+				if not king: 
+					if (res2[1] == 0 and color == RED) or (res2[1] == 7 and color == BLACK):
+						move_board.__grid[res2[1]][res2[2]] *= 2
+						if self.__grid[row][col] not in [RED, BLACK]:
+							print self.__grid[row][col]
+							raise Exception()
+						king_flag = True
+				# else:
+				# 	king_flag = False
 
 				move_flag = True
-				move_board.__getPieceJumps(color, res2[1], res2[2], piece_jumps, depth_flag = True, move = new_move)
+				move_board.__getPieceJumps(color, res2[1], res2[2], piece_jumps, depth_flag = True, move = new_move, new_king = king_flag)
 
 		if not move_flag and depth_flag:
 			piece_jumps.append((Board(self), cp.deepcopy(move)))
 			return
-		'''
-		if len(piece_jumps) > 0:
-			return piece_jumps
-		else:
-			return None
-		'''
+
 		return piece_jumps
 
 	def __checkDirection(self, color, row, col, direction, multiple = 1):
@@ -217,6 +321,13 @@ class Board(object):
 				move_board.__grid[row][col] = EMPTY
 				move_board.__grid[result[1]][result[2]] = val
 				new_move = Move((row, col, color), d, multiple = 1)
+				if not king: 
+					if (result[1] == 0 and color == RED) or (result[1] == 7 and color == BLACK):
+						move_board.__grid[result[1]][result[2]] *= 2
+						if self.__grid[row][col] not in [RED, BLACK]:
+							print self.__grid[row][col]
+							raise Exception()
+
 				piece_moves.append((move_board, new_move))
 
 
